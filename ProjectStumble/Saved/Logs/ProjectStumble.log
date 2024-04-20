@@ -932,3 +932,10 @@ LogConfig: Setting CVar [[r.setres:1280x720]]
 [2024.04.20-10.13.10:064][  0]LogContentStreaming: Texture pool size now 1000 MB
 [2024.04.20-10.13.16:976][816]LogAssetRegistry: Asset discovery search completed in 15.4844 seconds
 [2024.04.20-10.13.16:979][816]LogCollectionManager: Fixed up redirectors for 0 collections in 0.000003 seconds (updated 0 objects)
+[2024.04.20-10.30.06:285][394]LogHotReload: New module detected: UE4Editor-ProjectStumble-0001.dll
+[2024.04.20-10.30.06:964][397]LogHotReload: Starting Hot-Reload from IDE
+[2024.04.20-10.30.06:968][397]LogSlate: Took 0.000169 seconds to synchronously load lazily loaded font '../../../Engine/Content/Slate/Fonts/Roboto-Light.ttf' (167K)
+[2024.04.20-10.30.07:000][397]LogContentBrowser: Native class hierarchy updated for 'ProjectStumble' in 0.0003 seconds. Added 1 classes and 2 folders.
+[2024.04.20-10.30.07:001][397]Display: HotReload successful (0 functions remapped  0 scriptstructs remapped)
+[2024.04.20-10.30.07:029][397]LogContentBrowser: Native class hierarchy populated in 0.0058 seconds. Added 3428 classes and 823 folders.
+[2024.04.20-10.30.07:038][397]Display: HotReload took  0.1s.
