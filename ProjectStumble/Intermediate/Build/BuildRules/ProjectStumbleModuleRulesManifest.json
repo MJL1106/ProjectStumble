@@ -1,0 +1,8 @@
+{
+	"SourceFiles": [
+		"D:\\Unreal Projects\\ProjectStumble\\ProjectStumble\\Source\\ProjectStumble\\ProjectStumble.Build.cs",
+		"D:\\Unreal Projects\\ProjectStumble\\ProjectStumble\\Source\\ProjectStumble.Target.cs",
+		"D:\\Unreal Projects\\ProjectStumble\\ProjectStumble\\Source\\ProjectStumbleEditor.Target.cs"
+	],
+	"EngineVersion": "5.3.2"
+}

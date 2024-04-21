@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\..\ProjectStumble.uproject" />
+    <Filter Include="Source">
+      <UniqueIdentifier>{F31BBDD1-B3E8-3BCC-9652-680E16935819}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\ProjectStumble.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\Source\ProjectStumbleEditor.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <Filter Include="Config">
+      <UniqueIdentifier>{FA535FFB-25E1-3D20-B416-52F9BE21E06E}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Config\DefaultEditor.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEngine.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultGame.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultInput.ini">
+      <Filter>Config</Filter>
+    </None>
+    <Filter Include="Source\ProjectStumble">
+      <UniqueIdentifier>{F5A260DF-4CFA-3BF9-A669-FB80B6251AFC}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\ProjectStumble\ProjectStumble.Build.cs">
+      <Filter>Source\ProjectStumble</Filter>
+    </None>
+    <ClCompile Include="..\..\Source\ProjectStumble\ProjectStumble.cpp">
+      <Filter>Source\ProjectStumble</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\ProjectStumble\ProjectStumble.h">
+      <Filter>Source\ProjectStumble</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
