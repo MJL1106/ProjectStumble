@@ -1,0 +1,12 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-ProjectStumble-Win64-DebugGame.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"D:\Unreal Projects\ProjectStumble\ProjectStumble\Intermediate\Build\Win64\x64\ProjectStumbleEditor\DebugGame\Engine\SharedPCH.Engine.NonOptimized.Cpp20.h.obj"
+"D:\Unreal Projects\ProjectStumble\ProjectStumble\Intermediate\Build\Win64\x64\UnrealEditor\DebugGame\ProjectStumble\ProjectStumble.cpp.obj"
+"D:\Unreal Projects\ProjectStumble\ProjectStumble\Intermediate\Build\Win64\x64\UnrealEditor\DebugGame\ProjectStumble\Default.rc2.res"
+/OUT:"D:\Unreal Projects\ProjectStumble\ProjectStumble\Intermediate\Build\Win64\x64\UnrealEditor\DebugGame\ProjectStumble\UnrealEditor-ProjectStumble-Win64-DebugGame.lib"
