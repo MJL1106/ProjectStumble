@@ -6,7 +6,8 @@
 			"description": "Default Uncontrolled Changelist",
 			"files": [
 				"D:/Unreal Projects/ProjectStumble/ProjectStumble/Content/StarterContent/Audio/Collapse01.uasset",
-				"D:/Unreal Projects/ProjectStumble/ProjectStumble/Content/TheLostMetropolis/Maps/showcase.umap"
+				"D:/Unreal Projects/ProjectStumble/ProjectStumble/Content/TheLostMetropolis/Maps/showcase.umap",
+				"D:/Unreal Projects/ProjectStumble/ProjectStumble/Content/Stumble/Maps/Starter.umap"
 			]
 		}
 	]
