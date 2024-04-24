@@ -11,6 +11,8 @@
     <None Include="..\..\Source\ProjectStumbleEditor.Target.cs">
       <Filter>Source</Filter>
     </None>
+    <None Include="..\..\.editorconfig" />
+    <None Include="..\..\.vsconfig" />
     <Filter Include="Config">
       <UniqueIdentifier>{FA535FFB-25E1-3D20-B416-52F9BE21E06E}</UniqueIdentifier>
     </Filter>
@@ -36,6 +38,24 @@
       <Filter>Source\ProjectStumble</Filter>
     </ClCompile>
     <ClInclude Include="..\..\Source\ProjectStumble\ProjectStumble.h">
+      <Filter>Source\ProjectStumble</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\ProjectStumble\StumbleCharacterbase.cpp">
+      <Filter>Source\ProjectStumble</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\ProjectStumble\StumbleCharacterbase.h">
+      <Filter>Source\ProjectStumble</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\ProjectStumble\StumbleGameModeBase.cpp">
+      <Filter>Source\ProjectStumble</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\ProjectStumble\StumbleGameModeBase.h">
+      <Filter>Source\ProjectStumble</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\ProjectStumble\StumblePlayerController.cpp">
+      <Filter>Source\ProjectStumble</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\ProjectStumble\StumblePlayerController.h">
       <Filter>Source\ProjectStumble</Filter>
     </ClInclude>
   </ItemGroup>

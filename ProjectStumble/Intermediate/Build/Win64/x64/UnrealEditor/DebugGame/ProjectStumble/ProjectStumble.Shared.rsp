@@ -259,6 +259,7 @@
 /I "..\Intermediate\Build\Win64\UnrealEditor\Inc\AIModule\UHT"
 /I "Runtime\AIModule\Classes"
 /I "Runtime\AIModule\Public"
+/I "D:\Unreal Projects\ProjectStumble\ProjectStumble\Intermediate\Build\Win64\UnrealEditor\Inc\ProjectStumble\UHT"
 /I "D:\Unreal Projects\ProjectStumble\ProjectStumble\Source"
 /external:W0
 /external:I "ThirdParty\mimalloc\include"
