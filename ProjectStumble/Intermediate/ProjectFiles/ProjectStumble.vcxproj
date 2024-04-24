@@ -110,6 +110,7 @@
     <None Include="..\..\Source\ProjectStumble.Target.cs"/>
     <None Include="..\..\Source\ProjectStumbleEditor.Target.cs"/>
     <None Include="..\..\.editorconfig"/>
+    <None Include="..\..\.gitignore"/>
     <None Include="..\..\.vsconfig"/>
     <None Include="..\..\Config\DefaultEditor.ini"/>
     <None Include="..\..\Config\DefaultEngine.ini"/>

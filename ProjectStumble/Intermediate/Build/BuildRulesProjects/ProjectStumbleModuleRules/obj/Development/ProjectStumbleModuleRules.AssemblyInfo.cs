@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ProjectStumbleModuleRules")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Development")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4010764ea85dcf7da9ca159cef26360a632d3cac")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+298bded3af6f556b63859ca5b6fac1ec58d8f210")]
 [assembly: System.Reflection.AssemblyProductAttribute("ProjectStumbleModuleRules")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ProjectStumbleModuleRules")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
