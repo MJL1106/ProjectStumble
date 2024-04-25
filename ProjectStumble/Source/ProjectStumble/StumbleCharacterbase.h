@@ -52,6 +52,8 @@ protected:
 
 	bool bIsSprinting = false;
 
+	bool bIsCrouching = false;
+
 	float MaxWalkSpeed = 0.0f;
 
 public:	
@@ -65,5 +67,11 @@ public:
 
 	void RequestSprint();
 	void RequestStopSprint();
+
+	void StartCrouch();
+	void EndCrouch();
+
+	UFUNCTION(BlueprintPure)
+	bool IsCrouching() const { return bIsCrouching; }
 
 };

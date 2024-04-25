@@ -37,7 +37,8 @@ void AStumblePlayerController::SetupInputComponent()
 		InputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestJump);
 		InputComponent->BindAction("Jump", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestStopJump);
 
-		InputComponent->BindAction("Crouch", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestCrouch);
+		InputComponent->BindAction("Crouch", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestCrouchStart);
+		InputComponent->BindAction("Crouch", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestCrouchEnd);
 		InputComponent->BindAction("Sprint", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestSprint);
 		InputComponent->BindAction("Sprint", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestStopSprint);
 
@@ -82,28 +83,22 @@ void AStumblePlayerController::RequestStopJump()
 	}
 }
 
-void AStumblePlayerController::RequestCrouch()
+void AStumblePlayerController::RequestCrouchStart()
 {
-	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
-	{
-		StumbleCharacterbase->StopJumping();
-	}
-
-	AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter());
-	if (!StumbleCharacterbase || !StumbleCharacterbase->GetCharacterMovement()->IsMovingOnGround())
+	AStumbleCharacterbase* StumbleCharacterBase = Cast<AStumbleCharacterbase>(GetCharacter());
+	if (!StumbleCharacterBase || !StumbleCharacterBase->GetCharacterMovement()->IsMovingOnGround())
 	{
 		return;
 	}
-	if (StumbleCharacterbase)
+
+	StumbleCharacterBase->StartCrouch();
+}
+
+void AStumblePlayerController::RequestCrouchEnd()
+{
+	if (AStumbleCharacterbase* StumbleCharacterBase = Cast<AStumbleCharacterbase>(GetCharacter()))
 	{
-		if (StumbleCharacterbase->GetCharacterMovement()->IsCrouching())
-		{
-			StumbleCharacterbase->Crouch();
-		}
-		else
-		{
-			StumbleCharacterbase->Crouch();
-		}
+		StumbleCharacterBase->EndCrouch();
 	}
 }
 

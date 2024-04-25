@@ -7,7 +7,7 @@
 #include "Sound/SoundCue.h"
 #include "StumblePlayerController.generated.h"
 
-//class AStumbleGameModeBase
+class AStumbleGameModeBase;
 
 /**
  * 
@@ -24,7 +24,8 @@ protected:
 	void RequestStopJump();
 
 
-	void RequestCrouch();
+	void RequestCrouchStart();
+	void RequestCrouchEnd();
 
 	void RequestSprint();
 	void RequestStopSprint();

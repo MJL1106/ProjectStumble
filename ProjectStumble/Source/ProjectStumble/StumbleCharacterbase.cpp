@@ -4,6 +4,7 @@
 #include "StumbleCharacterbase.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
 #include "StumblePlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -117,6 +118,16 @@ void AStumbleCharacterbase::RequestStopSprint()
 {
 	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 	ServerSprintEnd();
+}
+
+void AStumbleCharacterbase::StartCrouch()
+{
+	bIsCrouching = true;
+}
+
+void AStumbleCharacterbase::EndCrouch()
+{
+	bIsCrouching = false;
 }
 
 void AStumbleCharacterbase::ServerSprintStart_Implementation()
