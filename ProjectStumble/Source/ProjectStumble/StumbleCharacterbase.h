@@ -33,7 +33,7 @@ protected:
 	void OnNotifyEndReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
-	float SprintSpeed = 1200.0f;
+	float SprintSpeed = 600.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Fall Impact")
 	float MinImpactSpeed = 100.0f;
