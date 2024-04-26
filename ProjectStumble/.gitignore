@@ -67,12 +67,14 @@ Build/*/**
 Saved/*
 
 # Compiled source files for the engine to use
-/ProjectStumble/Intermediate/*
-/ProjectStumble/Plugins/*/Intermediate/*
+Intermediate/*
+Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
 
 /ProjectStumble/Saved/*
 /ProjectStumble/Intermediate/*
-/ProjectStumble/Saved/*
+/ProjectStumble/Build/*
+/ProjectStumble/Binaries/*
+/ProjectStumble/DerivedDataCache/*
