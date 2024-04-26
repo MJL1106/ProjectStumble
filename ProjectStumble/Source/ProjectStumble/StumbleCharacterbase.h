@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float SprintSpeed = 600.0f;
 
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float CrouchSpeed = 150.0f;
+
 	UPROPERTY(EditAnywhere, Category = "Fall Impact")
 	float MinImpactSpeed = 100.0f;
 

@@ -110,6 +110,10 @@ void AStumbleCharacterbase::Landed(const FHitResult& Hit)
 
 void AStumbleCharacterbase::RequestSprint()
 {
+	if (bIsCrouching)
+	{
+		return;
+	}
 	GetCharacterMovement()->MaxWalkSpeed += SprintSpeed;
 	ServerSprintStart();
 }
@@ -123,11 +127,13 @@ void AStumbleCharacterbase::RequestStopSprint()
 void AStumbleCharacterbase::StartCrouch()
 {
 	bIsCrouching = true;
+	GetCharacterMovement()->MaxWalkSpeed = CrouchSpeed;
 }
 
 void AStumbleCharacterbase::EndCrouch()
 {
 	bIsCrouching = false;
+	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 }
 
 void AStumbleCharacterbase::ServerSprintStart_Implementation()
