@@ -23,6 +23,9 @@ protected:
 	void RequestJump();
 	void RequestStopJump();
 
+	void RequestGrabStart();
+	void RequestGrabStop();
+
 
 	void RequestCrouchStart();
 	void RequestCrouchEnd();

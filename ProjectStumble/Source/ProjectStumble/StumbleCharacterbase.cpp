@@ -136,6 +136,17 @@ void AStumbleCharacterbase::EndCrouch()
 	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 }
 
+void AStumbleCharacterbase::RequestGrabStart()
+{
+	bIsGrabbing = true;
+}
+
+void AStumbleCharacterbase::RequestGrabStop()
+{
+	bIsGrabbing = false;
+}
+
+
 void AStumbleCharacterbase::ServerSprintStart_Implementation()
 {
 	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;

@@ -57,6 +57,8 @@ protected:
 
 	bool bIsCrouching = false;
 
+	bool bIsGrabbing = false;
+
 	float MaxWalkSpeed = 0.0f;
 
 public:	
@@ -71,10 +73,16 @@ public:
 	void RequestSprint();
 	void RequestStopSprint();
 
+	void RequestGrabStart();
+	void RequestGrabStop();
+
 	void StartCrouch();
 	void EndCrouch();
 
 	UFUNCTION(BlueprintPure)
 	bool IsCrouching() const { return bIsCrouching; }
+
+	UFUNCTION(BlueprintPure)
+	bool IsGrabbing() const { return bIsGrabbing; }
 
 };

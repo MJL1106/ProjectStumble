@@ -42,6 +42,9 @@ void AStumblePlayerController::SetupInputComponent()
 		InputComponent->BindAction("Sprint", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestSprint);
 		InputComponent->BindAction("Sprint", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestStopSprint);
 
+		InputComponent->BindAction("Grab", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestGrabStart);
+		InputComponent->BindAction("Grab", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestGrabStop);
+
 		InputComponent->BindAxis("MoveForward", this, &AStumblePlayerController::RequestMoveForward);
 		InputComponent->BindAxis("MoveRight", this, &AStumblePlayerController::RequestMoveRight);
 		InputComponent->BindAxis("LookUp", this, &AStumblePlayerController::RequestLookUp);
@@ -115,6 +118,22 @@ void AStumblePlayerController::RequestStopSprint()
 	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
 	{
 		StumbleCharacterbase->RequestStopSprint();
+	}
+}
+
+void AStumblePlayerController::RequestGrabStart()
+{
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->RequestGrabStart();
+	}
+}
+
+void AStumblePlayerController::RequestGrabStop()
+{
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->RequestGrabStop();
 	}
 }
 
