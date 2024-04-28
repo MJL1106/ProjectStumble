@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "StumbleCharacterbase.h"
+#include "Components/InputComponent.h"
 
 
 void AStumblePlayerController::BeginPlay()
@@ -44,6 +45,9 @@ void AStumblePlayerController::SetupInputComponent()
 
 		InputComponent->BindAction("Grab", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestGrabStart);
 		InputComponent->BindAction("Grab", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestGrabStop);
+
+		InputComponent->BindAction("InteractionStart", IE_Pressed, this, &AStumblePlayerController::StartInteraction);
+		InputComponent->BindAction("InteractionStart", IE_Pressed, this, &AStumblePlayerController::StopInteraction);
 
 		InputComponent->BindAxis("MoveForward", this, &AStumblePlayerController::RequestMoveForward);
 		InputComponent->BindAxis("MoveRight", this, &AStumblePlayerController::RequestMoveRight);
@@ -165,4 +169,15 @@ void AStumblePlayerController::RequestLookUp(float AxisValue)
 void AStumblePlayerController::RequestLookRight(float AxisValue)
 {
 	AddYawInput(AxisValue * BaseLookRightRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AStumblePlayerController::StartInteraction()
+{
+	OnInteractionStart.Broadcast();
+	UE_LOG(LogTemp, Error, TEXT("Interaction Start Broadcasted"));
+}
+
+void AStumblePlayerController::StopInteraction()
+{
+	OnInteractionCancel.Broadcast();
 }
