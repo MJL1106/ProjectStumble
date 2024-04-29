@@ -40,7 +40,9 @@ AStumbleCharacterbase::AStumbleCharacterbase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	InterpSpeed = 5.0f;
+	SlowInterpSpeed = 2.0f;
+	TargetMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 }
 
 // Called when the game starts or when spawned
@@ -64,6 +66,30 @@ void AStumbleCharacterbase::Tick(float DeltaTime)
 		return;
 	}
 
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0;
+	bool IsMoving = Velocity.SizeSquared() > KINDA_SMALL_NUMBER;
+
+	// Use different interpolation speeds based on whether speed is increasing or decreasing
+	float CurrentInterpSpeed = IsMoving ? InterpSpeed : SlowInterpSpeed;
+
+	float NewTargetSpeed = 300.0f;
+
+	// Adjust speed based on crouching status and movement
+	if (bIsCrouching)
+	{
+		NewTargetSpeed = IsMoving ? TargetMaxWalkSpeed : 10.0f;
+	}
+	else if (!IsMoving)
+	{
+		NewTargetSpeed = 10.0f;
+	}
+
+	if (!bIsSprinting)
+	{
+		float PreviousSpeed = GetCharacterMovement()->MaxWalkSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = FMath::FInterpTo(PreviousSpeed, NewTargetSpeed, DeltaTime, CurrentInterpSpeed);
+	}
 }
 
 // Called to bind functionality to input
@@ -114,12 +140,14 @@ void AStumbleCharacterbase::RequestSprint()
 	{
 		return;
 	}
+	bIsSprinting = true;
 	GetCharacterMovement()->MaxWalkSpeed += SprintSpeed;
 	ServerSprintStart();
 }
 
 void AStumbleCharacterbase::RequestStopSprint()
 {
+	bIsSprinting = false;
 	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 	ServerSprintEnd();
 }
@@ -127,7 +155,7 @@ void AStumbleCharacterbase::RequestStopSprint()
 void AStumbleCharacterbase::StartCrouch()
 {
 	bIsCrouching = true;
-	GetCharacterMovement()->MaxWalkSpeed = CrouchSpeed;
+	TargetMaxWalkSpeed = CrouchSpeed;
 }
 
 void AStumbleCharacterbase::EndCrouch()

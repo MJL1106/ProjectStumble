@@ -38,6 +38,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float CrouchSpeed = 150.0f;
 
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float InterpSpeed;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float SlowInterpSpeed;
+
 	UPROPERTY(EditAnywhere, Category = "Fall Impact")
 	float MinImpactSpeed = 100.0f;
 
@@ -60,6 +66,8 @@ protected:
 	bool bIsGrabbing = false;
 
 	float MaxWalkSpeed = 0.0f;
+
+	float TargetMaxWalkSpeed;
 
 public:	
 	// Called every frame
