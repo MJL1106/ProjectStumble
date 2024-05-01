@@ -7,6 +7,7 @@
 #include "DrawDebugHelpers.h"
 #include "Components/CapsuleComponent.h"
 #include "StumblePlayerController.h"
+#include "StumbleCharacterbase.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -52,7 +53,7 @@ void UInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Error, TEXT("UInteractionComponent::BeginPLay"));
-	AStumblePlayerController* Player = Cast<AStumblePlayerController>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	AStumbleCharacterbase* Player = Cast<AStumbleCharacterbase>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (Player)
 	{
 		Player->OnInteractionStart.AddDynamic(this, &UInteractionComponent::InteractionStart);

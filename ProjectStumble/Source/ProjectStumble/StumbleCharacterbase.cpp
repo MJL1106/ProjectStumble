@@ -212,3 +212,16 @@ void AStumbleCharacterbase::OnNotifyEndReceived(FName NotifyName, const FBranchi
 {
 
 }
+
+void AStumbleCharacterbase::StartInteraction()
+{
+	bIsOpeningDoor = true;
+	OnInteractionStart.Broadcast();
+	UE_LOG(LogTemp, Error, TEXT("Interaction Start Broadcasted"));
+	UE_LOG(LogTemp, Error, TEXT("Interaction Start Broadcasted - bIsOpeningDoor: %s"), bIsOpeningDoor ? TEXT("true") : TEXT("false"));
+}
+
+void AStumbleCharacterbase::StopInteraction()
+{
+	OnInteractionCancel.Broadcast();
+}

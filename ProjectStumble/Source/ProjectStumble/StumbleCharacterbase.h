@@ -7,6 +7,9 @@
 #include "Sound/SoundCue.h"
 #include "StumbleCharacterbase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionStart);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionCancel);
+
 UCLASS()
 class PROJECTSTUMBLE_API AStumbleCharacterbase : public ACharacter
 {
@@ -19,6 +22,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+
 
 	UFUNCTION(Server, Reliable)
 	void ServerSprintStart();
@@ -65,6 +70,8 @@ protected:
 
 	bool bIsGrabbing = false;
 
+	bool bIsOpeningDoor = false;
+
 	float MaxWalkSpeed = 0.0f;
 
 	float TargetMaxWalkSpeed;
@@ -84,6 +91,9 @@ public:
 	void RequestGrabStart();
 	void RequestGrabStop();
 
+	void StartInteraction();
+	void StopInteraction();
+
 	void StartCrouch();
 	void EndCrouch();
 
@@ -92,5 +102,14 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsGrabbing() const { return bIsGrabbing; }
+
+	UFUNCTION(BlueprintPure)
+	bool IsOpeningDoor() const { return bIsOpeningDoor; }
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DoorOpenInteractionStarted(AActor* InteractableActor);
+
+	FOnInteractionStart OnInteractionStart;
+	FOnInteractionCancel OnInteractionCancel;
 
 };

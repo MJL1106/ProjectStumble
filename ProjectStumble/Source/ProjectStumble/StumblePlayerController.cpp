@@ -125,6 +125,22 @@ void AStumblePlayerController::RequestStopSprint()
 	}
 }
 
+void AStumblePlayerController::StartInteraction()
+{
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->StartInteraction();
+	}
+}
+
+void AStumblePlayerController::StopInteraction()
+{
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->StopInteraction();
+	}
+}
+
 void AStumblePlayerController::RequestGrabStart()
 {
 	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
@@ -169,15 +185,4 @@ void AStumblePlayerController::RequestLookUp(float AxisValue)
 void AStumblePlayerController::RequestLookRight(float AxisValue)
 {
 	AddYawInput(AxisValue * BaseLookRightRate * GetWorld()->GetDeltaSeconds());
-}
-
-void AStumblePlayerController::StartInteraction()
-{
-	OnInteractionStart.Broadcast();
-	UE_LOG(LogTemp, Error, TEXT("Interaction Start Broadcasted"));
-}
-
-void AStumblePlayerController::StopInteraction()
-{
-	OnInteractionCancel.Broadcast();
 }

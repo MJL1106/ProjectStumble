@@ -10,9 +10,6 @@
 class AStumbleGameModeBase;
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionStart);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionCancel);
-
 /**
  * 
  */
@@ -61,9 +58,4 @@ public:
 	virtual void OnPossess(APawn* aPawn) override;
 	virtual void OnUnPossess() override;
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void DoorOpenInteractionStarted(AActor* InteractableActor);
-
-	FOnInteractionStart OnInteractionStart;
-	FOnInteractionCancel OnInteractionCancel;
 };

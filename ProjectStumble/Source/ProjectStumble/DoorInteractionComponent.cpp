@@ -10,6 +10,7 @@
 #include "DrawDebugHelpers.h"
 //#include "ObjectiveComponent.h"
 #include "StumblePlayerController.h"
+#include "StumbleCharacterbase.h"
 
 constexpr float FLT_METERS(float meters) { return meters * 100.0f; }
 
@@ -117,11 +118,11 @@ void UDoorInteractionComponent::DebugDraw()
 void UDoorInteractionComponent::InteractionRequested()
 {
 	UE_LOG(LogTemp, Error, TEXT("DoorInteractionComponent::InteractionRequested"));
-	AStumblePlayerController* ASPC = Cast<AStumblePlayerController>(InteractingActor);
-	if (ASPC)
+	AStumbleCharacterbase* ASCB = Cast<AStumbleCharacterbase>(InteractingActor);
+	if (ASCB)
 	{
 		UE_LOG(LogTemp, Error, TEXT("DoorInteractionComponent::Valid ASPC"));
-		ASPC->DoorOpenInteractionStarted(GetOwner());
+		ASCB->DoorOpenInteractionStarted(GetOwner());
 	}
 }
 
