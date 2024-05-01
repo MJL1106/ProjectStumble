@@ -23,7 +23,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	bool PlayOpeningDoorMontage();
 
+	UFUNCTION()
+	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
 
 	UFUNCTION(Server, Reliable)
 	void ServerSprintStart();
@@ -36,6 +39,7 @@ protected:
 
 	UFUNCTION()
 	void OnNotifyEndReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
+
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float SprintSpeed = 600.0f;
@@ -63,6 +67,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Fall Impact")
 	USoundCue* HeavyLandSound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* OpeningDoorMontage = nullptr;
+
+	FOnMontageBlendingOutStarted BlendingOutDelegate;
+	FOnMontageEnded MontageEndedDelegate;
 
 	bool bIsSprinting = false;
 

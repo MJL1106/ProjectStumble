@@ -215,13 +215,46 @@ void AStumbleCharacterbase::OnNotifyEndReceived(FName NotifyName, const FBranchi
 
 void AStumbleCharacterbase::StartInteraction()
 {
-	bIsOpeningDoor = true;
-	OnInteractionStart.Broadcast();
-	UE_LOG(LogTemp, Error, TEXT("Interaction Start Broadcasted"));
-	UE_LOG(LogTemp, Error, TEXT("Interaction Start Broadcasted - bIsOpeningDoor: %s"), bIsOpeningDoor ? TEXT("true") : TEXT("false"));
+	if (PlayOpeningDoorMontage()) {
+		bIsOpeningDoor = true;
+		OnInteractionStart.Broadcast();
+		UE_LOG(LogTemp, Error, TEXT("Interaction Start Broadcasted"));
+		UE_LOG(LogTemp, Error, TEXT("Interaction Start Broadcasted - bIsOpeningDoor: %s"), bIsOpeningDoor ? TEXT("true") : TEXT("false"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Setting openingdoor to false"));
+		bIsOpeningDoor = false;
+	}
 }
 
 void AStumbleCharacterbase::StopInteraction()
 {
 	OnInteractionCancel.Broadcast();
+}
+
+
+bool AStumbleCharacterbase::PlayOpeningDoorMontage()
+{
+	const float PlayRate = 1.0f;
+	bool bPlayedSuccessfully = PlayAnimMontage(OpeningDoorMontage, PlayRate) > 0.0f;
+	UE_LOG(LogTemp, Error, TEXT("bPlayedSuccessfully: %s"), bPlayedSuccessfully ? TEXT("true") : TEXT("false"));
+	if (bPlayedSuccessfully)
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+		if (!BlendingOutDelegate.IsBound())
+		{
+			BlendingOutDelegate.BindUObject(this, &AStumbleCharacterbase::OnMontageBlendingOut);
+		}
+		AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, OpeningDoorMontage);
+
+		AnimInstance->Montage_SetEndDelegate(BlendingOutDelegate, OpeningDoorMontage);
+	}
+	return bPlayedSuccessfully;
+}
+
+void AStumbleCharacterbase::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
+{
+
 }
