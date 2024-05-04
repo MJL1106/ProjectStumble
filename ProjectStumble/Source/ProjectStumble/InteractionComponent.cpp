@@ -31,12 +31,9 @@ UInteractionComponent::UInteractionComponent()
 void UInteractionComponent::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	
-	//if (OtherActor->ActorHasTag("Player"))
-	//{
-		UE_LOG(LogTemp, Error, TEXT("Overlapping is set to true"));
-		bIsPlayerOverlapping = true;
-		InteractingActor = OtherActor;
-	//}
+
+	bIsPlayerOverlapping = true;
+	InteractingActor = OtherActor;
 }
 
 void UInteractionComponent::OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -52,12 +49,10 @@ void UInteractionComponent::OnOverlapEnd(class UPrimitiveComponent* OverlappedCo
 void UInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Error, TEXT("UInteractionComponent::BeginPLay"));
 	AStumbleCharacterbase* Player = Cast<AStumbleCharacterbase>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (Player)
 	{
 		Player->OnInteractionStart.AddDynamic(this, &UInteractionComponent::InteractionStart);
-		UE_LOG(LogTemp, Error, TEXT("UInteractionComponent::Player found"));
 	}
 	
 }

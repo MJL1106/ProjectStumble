@@ -35,10 +35,8 @@ UDoorInteractionComponent::UDoorInteractionComponent()
 void UDoorInteractionComponent::InteractionStart()
 {
 	Super::InteractionStart();
-	UE_LOG(LogTemp, Error, TEXT("DoorInteractionComponent::InteractionStart"));
 	if (InteractingActor)
 	{
-		UE_LOG(LogTemp, Error, TEXT("DoorInteractionComponent::Trying to call OpenDoor()"));
 		OpenDoor();
 	}
 }
@@ -58,10 +56,8 @@ void UDoorInteractionComponent::OpenDoor()
 {
 	if (IsOpen() || DoorState == EDoorState::DS_Opening)
 	{
-		UE_LOG(LogTemp, Error, TEXT("DoorInteractionComponent::Door is already opening"));
 		return;
 	}
-	UE_LOG(LogTemp, Error, TEXT("DoorInteractionComponent::Set door state to opening"));
 	DoorState = EDoorState::DS_Opening;
 	CurrentRotationTime = 0.0f;
 
@@ -117,11 +113,9 @@ void UDoorInteractionComponent::DebugDraw()
 
 void UDoorInteractionComponent::InteractionRequested()
 {
-	UE_LOG(LogTemp, Error, TEXT("DoorInteractionComponent::InteractionRequested"));
 	AStumbleCharacterbase* ASCB = Cast<AStumbleCharacterbase>(InteractingActor);
 	if (ASCB)
 	{
-		UE_LOG(LogTemp, Error, TEXT("DoorInteractionComponent::Valid ASPC"));
 		ASCB->DoorOpenInteractionStarted(GetOwner());
 	}
 }

@@ -70,12 +70,9 @@ void AStumbleCharacterbase::Tick(float DeltaTime)
 	Velocity.Z = 0;
 	bool IsMoving = Velocity.SizeSquared() > KINDA_SMALL_NUMBER;
 
-	// Use different interpolation speeds based on whether speed is increasing or decreasing
+	// Changes the interp speed depending on player going from stop to moving or moving to stop
 	float CurrentInterpSpeed = IsMoving ? InterpSpeed : SlowInterpSpeed;
-
 	float NewTargetSpeed = 300.0f;
-
-	// Adjust speed based on crouching status and movement
 	if (bIsCrouching)
 	{
 		NewTargetSpeed = IsMoving ? TargetMaxWalkSpeed : 10.0f;
@@ -215,15 +212,12 @@ void AStumbleCharacterbase::OnNotifyEndReceived(FName NotifyName, const FBranchi
 
 void AStumbleCharacterbase::StartInteraction()
 {
+	bIsOpeningDoor = true;
 	if (PlayOpeningDoorMontage()) {
-		bIsOpeningDoor = true;
 		OnInteractionStart.Broadcast();
-		UE_LOG(LogTemp, Error, TEXT("Interaction Start Broadcasted"));
-		UE_LOG(LogTemp, Error, TEXT("Interaction Start Broadcasted - bIsOpeningDoor: %s"), bIsOpeningDoor ? TEXT("true") : TEXT("false"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Setting openingdoor to false"));
 		bIsOpeningDoor = false;
 	}
 }
@@ -238,7 +232,6 @@ bool AStumbleCharacterbase::PlayOpeningDoorMontage()
 {
 	const float PlayRate = 1.0f;
 	bool bPlayedSuccessfully = PlayAnimMontage(OpeningDoorMontage, PlayRate) > 0.0f;
-	UE_LOG(LogTemp, Error, TEXT("bPlayedSuccessfully: %s"), bPlayedSuccessfully ? TEXT("true") : TEXT("false"));
 	if (bPlayedSuccessfully)
 	{
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -251,6 +244,7 @@ bool AStumbleCharacterbase::PlayOpeningDoorMontage()
 
 		AnimInstance->Montage_SetEndDelegate(BlendingOutDelegate, OpeningDoorMontage);
 	}
+	bIsOpeningDoor = false;
 	return bPlayedSuccessfully;
 }
 
