@@ -98,6 +98,34 @@ void UStumbleClimbComponent::OnMovementUpdated(float DeltaSeconds, const FVector
 	Super::OnMovementUpdated(DeltaSeconds, OldLocation, OldVelocity);
 }
 
+void UStumbleClimbComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
+{
+	if (IsClimbing())
+	{
+		bOrientRotationToMovement = false;
+
+		UCapsuleComponent* Capsule = CharacterOwner->GetCapsuleComponent();
+		Capsule->SetCapsuleHalfHeight(Capsule->GetUnscaledCapsuleHalfHeight() - ClimbingCollisionShrinkAmount);
+	}
+
+	const bool bWasClimbing = PreviousMovementMode == MOVE_Custom && PreviousCustomMode == CMOVE_Climbing;
+	if (bWasClimbing)
+	{
+		bOrientRotationToMovement = true;
+
+		const FRotator StandRotation = FRotator(0, UpdatedComponent->GetComponentRotation().Yaw, 0);
+		UpdatedComponent->SetRelativeRotation(StandRotation);
+
+		UCapsuleComponent* Capsule = CharacterOwner->GetCapsuleComponent();
+		Capsule->SetCapsuleHalfHeight(Capsule->GetUnscaledCapsuleHalfHeight() + ClimbingCollisionShrinkAmount);
+
+		// After exiting climbing mode, reset velocity and acceleration
+		StopMovementImmediately();
+	}
+
+	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
+}
+
 void UStumbleClimbComponent::TryClimbing()
 {
 	if (CanStartClimbing())
@@ -125,4 +153,43 @@ FVector UStumbleClimbComponent::GetClimbSurfaceNormal() const
 		return FVector::Zero();
 	}
 
+}
+
+void UStumbleClimbComponent::PhysCustom(float deltaTime, int32 Iterations)
+{
+	if (CustomMovementMode == ECustomMovementMode::CMOVE_Climbing)
+	{
+		PhysClimbing(deltaTime, Iterations);
+	}
+
+	Super::PhysCustom(deltaTime, Iterations);
+}
+
+void UStumbleClimbComponent::PhysClimbing(float deltaTime, int32 Iterations)
+{
+	if (deltaTime < MIN_TICK_TIME)
+	{
+		return;
+	}
+
+	ComputeSurfaceInfo();
+
+	if (ShouldStopClimbing())
+	{
+		StopClimbing(deltaTime, Iterations);
+		return;
+	}
+
+	ComputeClimbingVelocity(deltaTime);
+
+	const FVector OldLocation = UpdatedComponent->GetComponentLocation();
+
+	MoveAlongClimbingSurface(deltaTime);
+
+	if (!HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
+	{
+		Velocity = (UpdatedComponent->GetComponentLocation() - OldLocation) / deltaTime;
+	}
+
+	SnapToClimbingSurface(deltaTime);
 }

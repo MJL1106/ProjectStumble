@@ -37,6 +37,11 @@ private:
 
 	virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;
 
+	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
+
+	UPROPERTY(Category = "Character Movement: Climbing", EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "80.0"))
+	float ClimbingCollisionShrinkAmount = 30;
+
 
 private:
 	
@@ -47,6 +52,17 @@ private:
 	bool IsFacingSurface(float Steepness) const;
 
 	bool bWantsToClimb = false;
+
+	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
+
+	void PhysClimbing(float deltaTime, int32 Iterations);
+
+	void ComputeSurfaceInfo();
+	void ComputeClimbingVelocity(float deltaTime);
+	bool ShouldStopClimbing();
+	void StopClimbing(float deltaTime, int32 Iterations);
+	void MoveAlongClimbingSurface(float deltaTime);
+	void SnapToClimbingSurface(float deltaTime) const;
 
 public:
 	void TryClimbing();

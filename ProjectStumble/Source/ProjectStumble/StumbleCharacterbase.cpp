@@ -134,38 +134,55 @@ void AStumbleCharacterbase::Landed(const FHitResult& Hit)
 void AStumbleCharacterbase::MoveForward(float Value)
 {
 
-	if (Value != 0.f)
+	//if (Value != 0.f)
+	//{
+	//	FRotator const ControlSpaceRot = GetControlRotation();
+	//	AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X), Value);
+	//}
+
+	if (Controller == nullptr || Value == 0.0f)
 	{
-		FRotator const ControlSpaceRot = GetControlRotation();
-		AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X), Value);
+		return;
 	}
 
-	//if (Controller == nullptr || Value == 0.0f)
-	//{
-	//	return;
-	//}
+	FVector Direction;
 
-	//FVector Direction;
+	if (MovementComponent->IsClimbing())
+	{
+		Direction = FVector::CrossProduct(MovementComponent->GetClimbSurfaceNormal(), -GetActorRightVector());
+	}
+	else
+	{
+		Direction = GetControlOrientationMatrix().GetUnitAxis(EAxis::X);
+	}
 
-	//if (MovementComponent->IsClimbing())
-	//{
-	//	Direction = FVector::CrossProduct(MovementComponent->GetClimbSurfaceNormal(), -GetActorRightVector());
-	//}
-	//else
-	//{
-	//	Direction = GetControlOrientationMatrix().GetUnitAxis(EAxis::X);
-	//}
-
-	//AddMovementInput(Direction, Value);
+	AddMovementInput(Direction, Value);
 }
 
 void AStumbleCharacterbase::MoveRight(float Value)
 {
-	if (Value != 0.f)
+	//if (Value != 0.f)
+	//{
+	//	FRotator const ControlSpaceRot = GetControlRotation();
+		//AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), Value);
+	//}
+
+	if (Controller == nullptr || Value == 0.0f)
 	{
-		FRotator const ControlSpaceRot = GetControlRotation();
-		AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), Value);
+		return;
 	}
+
+	FVector Direction;
+	if (MovementComponent->IsClimbing())
+	{
+		Direction = FVector::CrossProduct(MovementComponent->GetClimbSurfaceNormal(), GetActorUpVector());
+	}
+	else
+	{
+		Direction = GetControlOrientationMatrix().GetUnitAxis(EAxis::Y);
+	}
+
+	AddMovementInput(Direction, Value);
 }
 
 FRotationMatrix AStumbleCharacterbase::GetControlOrientationMatrix() const
