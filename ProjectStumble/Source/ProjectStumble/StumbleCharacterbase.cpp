@@ -4,6 +4,7 @@
 #include "StumbleCharacterbase.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "StumbleClimbComponent.h"
 #include "GameFramework/Character.h"
 #include "StumblePlayerController.h"
 #include "Kismet/GameplayStatics.h"
@@ -169,6 +170,16 @@ void AStumbleCharacterbase::RequestGrabStart()
 void AStumbleCharacterbase::RequestGrabStop()
 {
 	bIsGrabbing = false;
+}
+
+void AStumbleCharacterbase::TryClimbing()
+{
+	MovementComponent->TryClimbing();
+}
+
+void AStumbleCharacterbase::CancelClimb()
+{
+	MovementComponent->CancelClimbing();
 }
 
 

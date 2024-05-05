@@ -49,6 +49,9 @@ void AStumblePlayerController::SetupInputComponent()
 		InputComponent->BindAction("InteractionStart", IE_Pressed, this, &AStumblePlayerController::StartInteraction);
 		InputComponent->BindAction("InteractionStart", IE_Pressed, this, &AStumblePlayerController::StopInteraction);
 
+		InputComponent->BindAction("Climb", IE_Pressed, this, &AStumblePlayerController::Climb);
+		InputComponent->BindAction("Cancel Climb", IE_Pressed, this, &AStumblePlayerController::CancelClimb);
+
 		InputComponent->BindAxis("MoveForward", this, &AStumblePlayerController::RequestMoveForward);
 		InputComponent->BindAxis("MoveRight", this, &AStumblePlayerController::RequestMoveRight);
 		InputComponent->BindAxis("LookUp", this, &AStumblePlayerController::RequestLookUp);
@@ -185,4 +188,20 @@ void AStumblePlayerController::RequestLookUp(float AxisValue)
 void AStumblePlayerController::RequestLookRight(float AxisValue)
 {
 	AddYawInput(AxisValue * BaseLookRightRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AStumblePlayerController::Climb()
+{
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->TryClimbing();
+	}
+}
+
+void AStumblePlayerController::CancelClimb()
+{
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->CancelClimb();
+	}
 }

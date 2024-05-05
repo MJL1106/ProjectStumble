@@ -10,10 +10,15 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionStart);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionCancel);
 
+class UStumbleClimbComponent;
+
 UCLASS()
 class PROJECTSTUMBLE_API AStumbleCharacterbase : public ACharacter
 {
 	GENERATED_BODY()
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE UStumbleClimbComponent* GetCustomCharacterMovement() const { return MovementComponent; }
 
 public:
 	// Sets default values for this character's properties
@@ -22,6 +27,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	UStumbleClimbComponent* MovementComponent;
 
 	bool PlayOpeningDoorMontage();
 
@@ -106,6 +114,9 @@ public:
 
 	void StartCrouch();
 	void EndCrouch();
+
+	void TryClimbing();
+	void CancelClimb();
 
 	UFUNCTION(BlueprintPure)
 	bool IsCrouching() const { return bIsCrouching; }

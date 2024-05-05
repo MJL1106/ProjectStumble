@@ -41,6 +41,9 @@ protected:
 	void RequestLookUp(float AxisValue);
 	void RequestLookRight(float AxisValue);
 
+	void Climb();
+	void CancelClimb();
+
 	UPROPERTY(EditAnywhere, Category = "Look")
 	float BaseLookUpRate = 90.0f;
 
