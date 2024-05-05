@@ -52,5 +52,11 @@ public:
 	void TryClimbing();
 
 	void CancelClimbing();
+
+	UFUNCTION(BlueprintPure)
+	bool IsClimbing() const;
+
+	UFUNCTION(BlueprintPure)
+	FVector GetClimbSurfaceNormal() const;
 };
 

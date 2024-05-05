@@ -110,3 +110,19 @@ void UStumbleClimbComponent::CancelClimbing()
 {
 	bWantsToClimb = false;
 }
+
+bool UStumbleClimbComponent::IsClimbing() const
+{
+	return MovementMode == EMovementMode::MOVE_Custom && CustomMovementMode == ECustomMovementMode::CMOVE_Climbing;
+}
+
+FVector UStumbleClimbComponent::GetClimbSurfaceNormal() const
+{
+	if (CurrentWallHits.Num() > 0) {
+		return CurrentWallHits[0].ImpactPoint;
+	}
+	else {
+		return FVector::Zero();
+	}
+
+}

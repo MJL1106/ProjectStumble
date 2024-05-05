@@ -131,6 +131,50 @@ void AStumbleCharacterbase::Landed(const FHitResult& Hit)
 		//}
 	}
 }
+void AStumbleCharacterbase::MoveForward(float Value)
+{
+
+	if (Value != 0.f)
+	{
+		FRotator const ControlSpaceRot = GetControlRotation();
+		AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X), Value);
+	}
+
+	//if (Controller == nullptr || Value == 0.0f)
+	//{
+	//	return;
+	//}
+
+	//FVector Direction;
+
+	//if (MovementComponent->IsClimbing())
+	//{
+	//	Direction = FVector::CrossProduct(MovementComponent->GetClimbSurfaceNormal(), -GetActorRightVector());
+	//}
+	//else
+	//{
+	//	Direction = GetControlOrientationMatrix().GetUnitAxis(EAxis::X);
+	//}
+
+	//AddMovementInput(Direction, Value);
+}
+
+void AStumbleCharacterbase::MoveRight(float Value)
+{
+	if (Value != 0.f)
+	{
+		FRotator const ControlSpaceRot = GetControlRotation();
+		AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), Value);
+	}
+}
+
+FRotationMatrix AStumbleCharacterbase::GetControlOrientationMatrix() const
+{
+	const FRotator Rotation = Controller->GetControlRotation();
+	const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+	return FRotationMatrix(YawRotation);
+}
 
 void AStumbleCharacterbase::RequestSprint()
 {

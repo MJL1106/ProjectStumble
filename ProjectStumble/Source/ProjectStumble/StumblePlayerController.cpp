@@ -162,21 +162,17 @@ void AStumblePlayerController::RequestGrabStop()
 
 void AStumblePlayerController::RequestMoveForward(float AxisValue)
 {
-
-	if (AxisValue != 0.f)
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
 	{
-		FRotator const ControlSpaceRot = GetControlRotation();
-		GetPawn()->AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X), AxisValue);
+		StumbleCharacterbase->MoveForward(AxisValue);
 	}
 }
 
 void AStumblePlayerController::RequestMoveRight(float AxisValue)
 {
-
-	if (AxisValue != 0.f)
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
 	{
-		FRotator const ControlSpaceRot = GetControlRotation();
-		GetPawn()->AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), AxisValue);
+		StumbleCharacterbase->MoveRight(AxisValue);
 	}
 }
 

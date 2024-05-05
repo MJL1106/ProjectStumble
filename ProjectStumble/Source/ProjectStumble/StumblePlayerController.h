@@ -8,7 +8,7 @@
 #include "StumblePlayerController.generated.h"
 
 class AStumbleGameModeBase;
-
+class UStumbleClimbComponent;
 
 /**
  * 
@@ -17,9 +17,14 @@ UCLASS()
 class PROJECTSTUMBLE_API AStumblePlayerController : public APlayerController
 {
 	GENERATED_BODY()
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE UStumbleClimbComponent* GetCustomCharacterMovement() const { return MovementComponent; }
 
 protected:
 	virtual void SetupInputComponent() override;
+
+	UPROPERTY()
+	UStumbleClimbComponent* MovementComponent;
 
 	void RequestJump();
 	void RequestStopJump();
@@ -53,6 +58,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	USoundCue* JumpSound = nullptr;
 	
+	FRotationMatrix GetControlOrientationMatrix() const;
 
 public:
 	virtual void BeginPlay() override;

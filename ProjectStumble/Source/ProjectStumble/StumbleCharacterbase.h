@@ -94,6 +94,8 @@ protected:
 
 	float TargetMaxWalkSpeed;
 
+	FRotationMatrix GetControlOrientationMatrix() const;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -117,6 +119,11 @@ public:
 
 	void TryClimbing();
 	void CancelClimb();
+
+	void MoveForward(float AxisValue);
+
+
+	void MoveRight(float AxisValue);
 
 	UFUNCTION(BlueprintPure)
 	bool IsCrouching() const { return bIsCrouching; }
