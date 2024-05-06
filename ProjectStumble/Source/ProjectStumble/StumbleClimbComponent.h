@@ -31,6 +31,18 @@ private:
 	UPROPERTY(Category = "Character Movement: Climbing", EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "75.0"))
 	float MinHorizontalDegreesToStartClimbing = 25;
 
+	UPROPERTY(Category = "Character Movement: Climbing", EditAnywhere, meta = (ClampMin = "10.0", ClampMax = "500.0"))
+	float MaxClimbingSpeed = 120.f;
+
+	UPROPERTY(Category = "Character Movement: Climbing", EditAnywhere, meta = (ClampMin = "10.0", ClampMax = "2000.0"))
+	float MaxClimbingAcceleration = 380.f;
+
+	UPROPERTY(Category = "Character Movement: Climbing", EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "3000.0"))
+	float BrakingDecelerationClimbing = 550.f;
+
+	virtual float GetMaxSpeed() const override;
+	virtual float GetMaxAcceleration() const override;
+
 	TArray<FHitResult> CurrentWallHits;
 
 	FCollisionQueryParams ClimbQueryParams;
@@ -41,6 +53,20 @@ private:
 
 	UPROPERTY(Category = "Character Movement: Climbing", EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "80.0"))
 	float ClimbingCollisionShrinkAmount = 30;
+
+	UPROPERTY(Category = "Character Movement: Climbing", EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "12.0"))
+	int ClimbingRotationSpeed = 6;
+
+	UPROPERTY(Category = "Character Movement: Climbing", EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "60.0"))
+	float ClimbingSnapSpeed = 4.f;
+
+	UPROPERTY(Category = "Character Movement: Climbing", EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "80.0"))
+	float DistanceFromSurface = 45.f;
+
+	FQuat GetClimbingRotation(float deltaTime) const;
+
+	FVector CurrentClimbingNormal;
+	FVector CurrentClimbingPosition;
 
 
 private:
@@ -58,13 +84,16 @@ private:
 	void PhysClimbing(float deltaTime, int32 Iterations);
 
 	void ComputeSurfaceInfo();
-	void ComputeClimbingVelocity(float deltaTime);
-	bool ShouldStopClimbing();
+	void ComputeClimbVelocity(float deltaTime);
+	bool ShouldStopClimbing() const;
 	void StopClimbing(float deltaTime, int32 Iterations);
 	void MoveAlongClimbingSurface(float deltaTime);
 	void SnapToClimbingSurface(float deltaTime) const;
 
 public:
+
+	UStumbleClimbComponent(const FObjectInitializer& ObjectInitializer);
+
 	void TryClimbing();
 
 	void CancelClimbing();
@@ -74,5 +103,6 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FVector GetClimbSurfaceNormal() const;
+	
 };
 

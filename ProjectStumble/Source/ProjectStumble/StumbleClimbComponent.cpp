@@ -6,6 +6,11 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 
+UStumbleClimbComponent::UStumbleClimbComponent(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
 void UStumbleClimbComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -144,17 +149,6 @@ bool UStumbleClimbComponent::IsClimbing() const
 	return MovementMode == EMovementMode::MOVE_Custom && CustomMovementMode == ECustomMovementMode::CMOVE_Climbing;
 }
 
-FVector UStumbleClimbComponent::GetClimbSurfaceNormal() const
-{
-	if (CurrentWallHits.Num() > 0) {
-		return CurrentWallHits[0].ImpactPoint;
-	}
-	else {
-		return FVector::Zero();
-	}
-
-}
-
 void UStumbleClimbComponent::PhysCustom(float deltaTime, int32 Iterations)
 {
 	if (CustomMovementMode == ECustomMovementMode::CMOVE_Climbing)
@@ -180,7 +174,7 @@ void UStumbleClimbComponent::PhysClimbing(float deltaTime, int32 Iterations)
 		return;
 	}
 
-	ComputeClimbingVelocity(deltaTime);
+	ComputeClimbVelocity(deltaTime);
 
 	const FVector OldLocation = UpdatedComponent->GetComponentLocation();
 
@@ -192,4 +186,103 @@ void UStumbleClimbComponent::PhysClimbing(float deltaTime, int32 Iterations)
 	}
 
 	SnapToClimbingSurface(deltaTime);
+}
+
+void UStumbleClimbComponent::ComputeSurfaceInfo()
+{
+	CurrentClimbingNormal = FVector::ZeroVector;
+	CurrentClimbingPosition = FVector::ZeroVector;
+
+	if (CurrentWallHits.IsEmpty())
+	{
+		return;
+	}
+
+	for (const FHitResult& WallHit : CurrentWallHits)
+	{
+		CurrentClimbingPosition += WallHit.ImpactPoint;
+		CurrentClimbingNormal += WallHit.Normal;
+	}
+
+	CurrentClimbingPosition /= CurrentWallHits.Num();
+	CurrentClimbingNormal = CurrentClimbingNormal.GetSafeNormal();
+}
+
+FVector UStumbleClimbComponent::GetClimbSurfaceNormal() const
+{
+	return CurrentClimbingNormal;
+}
+
+bool UStumbleClimbComponent::ShouldStopClimbing() const
+{
+	const bool bIsOnCeiling = FVector::Parallel(CurrentClimbingNormal, FVector::UpVector);
+
+	return !bWantsToClimb || CurrentClimbingNormal.IsZero() || bIsOnCeiling;
+}
+
+void UStumbleClimbComponent::StopClimbing(float deltaTime, int32 Iterations)
+{
+	bWantsToClimb = false;
+	SetMovementMode(EMovementMode::MOVE_Falling);
+	StartNewPhysics(deltaTime, Iterations);
+}
+
+void UStumbleClimbComponent::ComputeClimbVelocity(float deltaTime)
+{
+	RestorePreAdditiveRootMotionVelocity();
+
+	if (!HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
+	{
+		constexpr float Friction = 0.0f;
+		constexpr bool bFluid = false;
+		CalcVelocity(deltaTime, Friction, bFluid, BrakingDecelerationClimbing);
+	}
+
+	ApplyRootMotionToVelocity(deltaTime);
+}
+
+float UStumbleClimbComponent::GetMaxSpeed() const
+{
+	return IsClimbing() ? MaxClimbingSpeed : Super::GetMaxSpeed();
+}
+
+float UStumbleClimbComponent::GetMaxAcceleration() const
+{
+	return IsClimbing() ? MaxClimbingAcceleration : Super::GetMaxAcceleration();
+}
+
+void UStumbleClimbComponent::MoveAlongClimbingSurface(float deltaTime)
+{
+	const FVector Adjusted = Velocity * deltaTime;
+
+	FHitResult Hit(1.f);
+
+	SafeMoveUpdatedComponent(Adjusted, GetClimbingRotation(deltaTime), true, Hit);
+
+	if (Hit.Time < 1.f)
+	{
+		HandleImpact(Hit, deltaTime, Adjusted);
+		SlideAlongSurface(Adjusted, (1.f - Hit.Time), Hit.Normal, Hit, true);
+	}
+}
+
+FQuat UStumbleClimbComponent::GetClimbingRotation(float deltaTime) const
+{
+	const FQuat Current = UpdatedComponent->GetComponentQuat();
+	const FQuat Target = FRotationMatrix::MakeFromX(-CurrentClimbingNormal).ToQuat();
+
+	return FMath::QInterpTo(Current, Target, deltaTime, ClimbingRotationSpeed);
+}
+
+void UStumbleClimbComponent::SnapToClimbingSurface(float deltaTime) const
+{
+	const FVector Forward = UpdatedComponent->GetForwardVector();
+	const FVector Location = UpdatedComponent->GetComponentLocation();
+	const FQuat Rotation = UpdatedComponent->GetComponentQuat();
+
+	const FVector ForwardDifference = (CurrentClimbingPosition - Location).ProjectOnTo(Forward);
+	const FVector Offset = -CurrentClimbingNormal * (ForwardDifference.Length() - DistanceFromSurface);
+
+	constexpr bool bSweep = true;
+	UpdatedComponent->MoveComponent(Offset * ClimbingSnapSpeed * deltaTime, Rotation, bSweep);
 }

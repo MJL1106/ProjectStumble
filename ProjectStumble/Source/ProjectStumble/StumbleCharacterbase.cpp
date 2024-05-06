@@ -37,13 +37,15 @@ static TAutoConsoleVariable<bool> CVarDisplayThrowVelocity(
 	ECVF_Default);
 
 // Sets default values
-AStumbleCharacterbase::AStumbleCharacterbase()
+AStumbleCharacterbase::AStumbleCharacterbase(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UStumbleClimbComponent>(ACharacter::CharacterMovementComponentName))
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	InterpSpeed = 5.0f;
 	SlowInterpSpeed = 2.0f;
 	TargetMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	MovementComponent = Cast<UStumbleClimbComponent>(GetCharacterMovement());
 }
 
 // Called when the game starts or when spawned
@@ -53,6 +55,11 @@ void AStumbleCharacterbase::BeginPlay()
 	if (GetCharacterMovement())
 	{
 		MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	}
+
+	if (!MovementComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("MovementComponent is not initialized on %s"), *GetName());
 	}
 	
 }
@@ -147,7 +154,7 @@ void AStumbleCharacterbase::MoveForward(float Value)
 
 	FVector Direction;
 
-	if (MovementComponent->IsClimbing())
+	if (MovementComponent && MovementComponent->IsClimbing())
 	{
 		Direction = FVector::CrossProduct(MovementComponent->GetClimbSurfaceNormal(), -GetActorRightVector());
 	}
@@ -173,7 +180,7 @@ void AStumbleCharacterbase::MoveRight(float Value)
 	}
 
 	FVector Direction;
-	if (MovementComponent->IsClimbing())
+	if (MovementComponent && MovementComponent->IsClimbing())
 	{
 		Direction = FVector::CrossProduct(MovementComponent->GetClimbSurfaceNormal(), GetActorUpVector());
 	}

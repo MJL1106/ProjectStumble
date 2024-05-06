@@ -22,7 +22,7 @@ class PROJECTSTUMBLE_API AStumbleCharacterbase : public ACharacter
 
 public:
 	// Sets default values for this character's properties
-	AStumbleCharacterbase();
+	AStumbleCharacterbase(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	// Called when the game starts or when spawned
