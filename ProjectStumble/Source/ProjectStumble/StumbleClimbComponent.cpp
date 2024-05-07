@@ -166,6 +166,12 @@ void UStumbleClimbComponent::PhysClimbing(float deltaTime, int32 Iterations)
 		return;
 	}
 
+	if (ShouldStopClimbing() || ClimbDownToFloor())
+	{
+		StopClimbing(deltaTime, Iterations);
+		return;
+	}
+
 	ComputeSurfaceInfo();
 
 	if (ShouldStopClimbing())
@@ -285,4 +291,30 @@ void UStumbleClimbComponent::SnapToClimbingSurface(float deltaTime) const
 
 	constexpr bool bSweep = true;
 	UpdatedComponent->MoveComponent(Offset * ClimbingSnapSpeed * deltaTime, Rotation, bSweep);
+}
+
+bool UStumbleClimbComponent::ClimbDownToFloor() const
+{
+	FHitResult FloorHit;
+	if (!CheckFloor(FloorHit))
+	{
+		return false;
+	}
+
+	const bool bOnWalkableFloor = FloorHit.Normal.Z > GetWalkableFloorZ();
+
+	const float DownSpeed = FVector::DotProduct(Velocity, -FloorHit.Normal);
+	const bool bIsMovingTowardsFloor = DownSpeed >= MaxClimbingSpeed / 3 && bOnWalkableFloor;
+
+	const bool bIsClimbingFloor = CurrentClimbingNormal.Z > GetWalkableFloorZ();
+
+	return bIsMovingTowardsFloor || (bIsClimbingFloor && bOnWalkableFloor);
+}
+
+bool UStumbleClimbComponent::CheckFloor(FHitResult& FloorHit) const
+{
+	const FVector Start = UpdatedComponent->GetComponentLocation();
+	const FVector End = Start + FVector::DownVector * FloorCheckDistance;
+
+	return GetWorld()->LineTraceSingleByChannel(FloorHit, Start, End, ECC_WorldStatic, ClimbQueryParams);
 }

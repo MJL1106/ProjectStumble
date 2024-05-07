@@ -40,7 +40,7 @@ static TAutoConsoleVariable<bool> CVarDisplayThrowVelocity(
 AStumbleCharacterbase::AStumbleCharacterbase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UStumbleClimbComponent>(ACharacter::CharacterMovementComponentName))
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	
 	PrimaryActorTick.bCanEverTick = true;
 	InterpSpeed = 5.0f;
 	SlowInterpSpeed = 2.0f;
@@ -141,12 +141,6 @@ void AStumbleCharacterbase::Landed(const FHitResult& Hit)
 void AStumbleCharacterbase::MoveForward(float Value)
 {
 
-	//if (Value != 0.f)
-	//{
-	//	FRotator const ControlSpaceRot = GetControlRotation();
-	//	AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X), Value);
-	//}
-
 	if (Controller == nullptr || Value == 0.0f)
 	{
 		return;
@@ -168,11 +162,6 @@ void AStumbleCharacterbase::MoveForward(float Value)
 
 void AStumbleCharacterbase::MoveRight(float Value)
 {
-	//if (Value != 0.f)
-	//{
-	//	FRotator const ControlSpaceRot = GetControlRotation();
-		//AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), Value);
-	//}
 
 	if (Controller == nullptr || Value == 0.0f)
 	{
