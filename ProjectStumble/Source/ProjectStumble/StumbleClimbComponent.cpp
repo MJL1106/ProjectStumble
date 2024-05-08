@@ -168,13 +168,20 @@ void UStumbleClimbComponent::PhysClimbing(float deltaTime, int32 Iterations)
 
 
 
+	if (deltaTime < MIN_TICK_TIME)
+	{
+		return;
+	}
+
 	ComputeSurfaceInfo();
 
-	if (ShouldStopClimbing())
+	if (ShouldStopClimbing() || ClimbDownToFloor())
 	{
 		StopClimbing(deltaTime, Iterations);
 		return;
 	}
+
+	//UpdateClimbDashState(deltaTime);
 
 	ComputeClimbVelocity(deltaTime);
 
@@ -182,11 +189,7 @@ void UStumbleClimbComponent::PhysClimbing(float deltaTime, int32 Iterations)
 
 	MoveAlongClimbingSurface(deltaTime);
 
-	if (ShouldStopClimbing() || ClimbDownToFloor())
-	{
-		StopClimbing(deltaTime, Iterations);
-		return;
-	}
+	//TryClimbUpLedge();
 
 	if (!HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
 	{
