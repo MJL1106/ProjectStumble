@@ -198,7 +198,6 @@ void AStumblePlayerController::CancelClimb()
 {
 	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("StumblePlayerController::CancelClimb"));
 		StumbleCharacterbase->CancelClimb();
 	}
 }

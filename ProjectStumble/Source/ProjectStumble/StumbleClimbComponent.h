@@ -66,7 +66,7 @@ private:
 	UPROPERTY(Category = "Character Movement: Climbing", EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "500.0"))
 	float FloorCheckDistance = 100.f;
 
-	//bool CheckFloor(FHitResult& FloorHit) const;
+	bool CheckFloor(FHitResult& FloorHit) const;
 
 	FQuat GetClimbingRotation(float deltaTime) const;
 
@@ -94,7 +94,7 @@ private:
 	void StopClimbing(float deltaTime, int32 Iterations);
 	void MoveAlongClimbingSurface(float deltaTime);
 	void SnapToClimbingSurface(float deltaTime) const;
-	//bool ClimbDownToFloor() const;
+	bool ClimbDownToFloor() const;
 
 public:
 
