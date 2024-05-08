@@ -120,6 +120,8 @@ public:
 	void TryClimbing();
 	void CancelClimb();
 
+	void Jump();
+
 	void MoveForward(float AxisValue);
 
 

@@ -138,6 +138,19 @@ void AStumbleCharacterbase::Landed(const FHitResult& Hit)
 		//}
 	}
 }
+
+void AStumbleCharacterbase::Jump()
+{
+	if (MovementComponent->IsClimbing())
+	{
+		MovementComponent->TryClimbDashing();
+	}
+	else
+	{
+		Super::Jump();
+	}
+}
+
 void AStumbleCharacterbase::MoveForward(float Value)
 {
 

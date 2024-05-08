@@ -66,6 +66,19 @@ private:
 	UPROPERTY(Category = "Character Movement: Climbing", EditAnywhere, meta = (ClampMin = "1.0", ClampMax = "500.0"))
 	float FloorCheckDistance = 100.f;
 
+	UPROPERTY(Category = "Character Movement: Climbing", EditDefaultsOnly)
+	UAnimMontage* LedgeClimbMontage;
+
+	UPROPERTY()
+	UAnimInstance* AnimInstance;
+
+	UPROPERTY(Category = "Character Movement: Climbing", EditDefaultsOnly)
+	UCurveFloat* ClimbDashCurve;
+
+	FVector ClimbDashDirection;
+	bool bWantsToClimbDash = false;
+	float CurrentClimbDashTime;
+
 	bool CheckFloor(FHitResult& FloorHit) const;
 
 	FQuat GetClimbingRotation(float deltaTime) const;
@@ -84,6 +97,8 @@ private:
 
 	bool bWantsToClimb = false;
 
+	bool bIsClimbDashing = false;
+
 	virtual void PhysCustom(float deltaTime, int32 Iterations) override;
 
 	void PhysClimbing(float deltaTime, int32 Iterations);
@@ -95,6 +110,18 @@ private:
 	void MoveAlongClimbingSurface(float deltaTime);
 	void SnapToClimbingSurface(float deltaTime) const;
 	bool ClimbDownToFloor() const;
+
+	bool TryClimbUpLedge() const;
+	bool HasReachedEdge() const;
+	bool CanMoveToLedgeClimbLocation() const;
+	void SetRotationToStand() const;
+	bool IsLocationWalkable(const FVector& CheckLocation) const;
+
+	void UpdateClimbDashState(float deltaTime);
+	void StopClimbDashing();
+
+	void StoreClimbDashDirection();
+	void AlignClimbDashDirection();
 
 public:
 
@@ -109,6 +136,16 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FVector GetClimbSurfaceNormal() const;
+
+	UFUNCTION(BlueprintCallable)
+	void TryClimbDashing();
+
+	UFUNCTION(BlueprintPure)
+	bool IsClimbDashing() const;
+
+
+	UFUNCTION(BlueprintPure)
+	FVector GetClimbDashDirection() const;
 	
 };
 

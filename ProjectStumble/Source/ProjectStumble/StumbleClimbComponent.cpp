@@ -15,7 +15,7 @@ void UStumbleClimbComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UAnimInstance* AnimInstance = GetCharacterOwner()->GetMesh()->GetAnimInstance();
+	AnimInstance = GetCharacterOwner()->GetMesh()->GetAnimInstance();
 
 	ClimbQueryParams.AddIgnoredActor(GetOwner());
 }
@@ -78,8 +78,10 @@ bool UStumbleClimbComponent::EyeHeightTrace(const float TraceDistance) const
 {
 	FHitResult UpperEdgeHit;
 
-	const FVector Start = UpdatedComponent->GetComponentLocation() +
-		(UpdatedComponent->GetUpVector() * GetCharacterOwner()->BaseEyeHeight);
+	const float BaseEyeHeight = GetCharacterOwner()->BaseEyeHeight;
+	const float EyeHeightOffset = IsClimbing() ? BaseEyeHeight + ClimbingCollisionShrinkAmount : BaseEyeHeight;
+
+	const FVector Start = UpdatedComponent->GetComponentLocation() + UpdatedComponent->GetUpVector() * EyeHeightOffset;
 	const FVector End = Start + (UpdatedComponent->GetForwardVector() * TraceDistance);
 
 	return GetWorld()->LineTraceSingleByChannel(UpperEdgeHit, Start, End, ECC_WorldStatic, ClimbQueryParams);
@@ -181,7 +183,7 @@ void UStumbleClimbComponent::PhysClimbing(float deltaTime, int32 Iterations)
 		return;
 	}
 
-	//UpdateClimbDashState(deltaTime);
+	UpdateClimbDashState(deltaTime);
 
 	ComputeClimbVelocity(deltaTime);
 
@@ -189,7 +191,7 @@ void UStumbleClimbComponent::PhysClimbing(float deltaTime, int32 Iterations)
 
 	MoveAlongClimbingSurface(deltaTime);
 
-	//TryClimbUpLedge();
+	TryClimbUpLedge();
 
 	if (!HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
 	{
@@ -233,6 +235,8 @@ bool UStumbleClimbComponent::ShouldStopClimbing() const
 
 void UStumbleClimbComponent::StopClimbing(float deltaTime, int32 Iterations)
 {
+	StopClimbDashing();
+
 	bWantsToClimb = false;
 	SetMovementMode(EMovementMode::MOVE_Falling);
 	StartNewPhysics(deltaTime, Iterations);
@@ -244,9 +248,19 @@ void UStumbleClimbComponent::ComputeClimbVelocity(float deltaTime)
 
 	if (!HasAnimRootMotion() && !CurrentRootMotion.HasOverrideVelocity())
 	{
-		constexpr float Friction = 0.0f;
-		constexpr bool bFluid = false;
-		CalcVelocity(deltaTime, Friction, bFluid, BrakingDecelerationClimbing);
+		if (bIsClimbDashing)
+		{
+			AlignClimbDashDirection();
+
+			const float CurrentCurveSpeed = ClimbDashCurve->GetFloatValue(CurrentClimbDashTime);
+			Velocity = ClimbDashDirection * CurrentCurveSpeed;
+		}
+		else
+		{
+			constexpr float Friction = 0.0f;
+			constexpr bool bFluid = false;
+			CalcVelocity(deltaTime, Friction, bFluid, BrakingDecelerationClimbing);
+		}
 	}
 
 	ApplyRootMotionToVelocity(deltaTime);
@@ -280,9 +294,16 @@ void UStumbleClimbComponent::MoveAlongClimbingSurface(float deltaTime)
 FQuat UStumbleClimbComponent::GetClimbingRotation(float deltaTime) const
 {
 	const FQuat Current = UpdatedComponent->GetComponentQuat();
-	const FQuat Target = FRotationMatrix::MakeFromX(-CurrentClimbingNormal).ToQuat();
 
-	return FMath::QInterpTo(Current, Target, deltaTime, ClimbingRotationSpeed);
+	if (HasAnimRootMotion() || CurrentRootMotion.HasOverrideVelocity())
+	{
+		return Current;
+	}
+
+	const FQuat Target = FRotationMatrix::MakeFromX(-CurrentClimbingNormal).ToQuat();
+	const float RotationSpeed = ClimbingRotationSpeed * FMath::Max(1, Velocity.Length() / MaxClimbingSpeed);
+
+	return FMath::QInterpTo(Current, Target, deltaTime, RotationSpeed);
 }
 
 void UStumbleClimbComponent::SnapToClimbingSurface(float deltaTime) const
@@ -292,10 +313,13 @@ void UStumbleClimbComponent::SnapToClimbingSurface(float deltaTime) const
 	const FQuat Rotation = UpdatedComponent->GetComponentQuat();
 
 	const FVector ForwardDifference = (CurrentClimbingPosition - Location).ProjectOnTo(Forward);
+
 	const FVector Offset = -CurrentClimbingNormal * (ForwardDifference.Length() - DistanceFromSurface);
 
 	constexpr bool bSweep = true;
-	UpdatedComponent->MoveComponent(Offset * ClimbingSnapSpeed * deltaTime, Rotation, bSweep);
+
+	const float SnapSpeed = ClimbingSnapSpeed * ((Velocity.Length() / MaxClimbingSpeed) + 1);
+	UpdatedComponent->MoveComponent(Offset * SnapSpeed * deltaTime, Rotation, bSweep);
 }
 
 bool UStumbleClimbComponent::ClimbDownToFloor() const
@@ -322,4 +346,139 @@ bool UStumbleClimbComponent::CheckFloor(FHitResult& FloorHit) const
 	const FVector End = Start + FVector::DownVector * FloorCheckDistance;
 
 	return GetWorld()->LineTraceSingleByChannel(FloorHit, Start, End, ECC_WorldStatic, ClimbQueryParams);
+}
+
+bool UStumbleClimbComponent::TryClimbUpLedge() const
+{
+	if (AnimInstance && AnimInstance->Montage_IsPlaying(LedgeClimbMontage))
+	{
+		return false;
+	}
+
+	const float UpSpeed = FVector::DotProduct(Velocity, UpdatedComponent->GetUpVector());
+	const bool bIsMovingUp = UpSpeed >= MaxClimbingSpeed / 3;
+
+	if (bIsMovingUp && HasReachedEdge() && CanMoveToLedgeClimbLocation())
+	{
+		SetRotationToStand();
+		AnimInstance->Montage_Play(LedgeClimbMontage);
+
+		return true;
+	}
+
+	return false;
+}
+
+bool UStumbleClimbComponent::HasReachedEdge() const
+{
+	const UCapsuleComponent* Capsule = CharacterOwner->GetCapsuleComponent();
+	const float TraceDistance = Capsule->GetUnscaledCapsuleRadius() * 2.5f;
+
+	return !EyeHeightTrace(TraceDistance);
+}
+
+bool UStumbleClimbComponent::CanMoveToLedgeClimbLocation() const
+{
+	const UCapsuleComponent* Capsule = CharacterOwner->GetCapsuleComponent();
+
+	// Could use a property instead for fine-tuning.
+	const FVector VerticalOffset = FVector::UpVector * 160.f;
+	const FVector HorizontalOffset = UpdatedComponent->GetForwardVector() * 100.f;
+
+	const FVector CheckLocation = UpdatedComponent->GetComponentLocation() + HorizontalOffset + VerticalOffset;
+
+	if (!IsLocationWalkable(CheckLocation))
+	{
+		return false;
+	}
+
+	FHitResult CapsuleHit;
+	const FVector CapsuleStartCheck = CheckLocation - HorizontalOffset;
+
+	const bool bBlocked = GetWorld()->SweepSingleByChannel(CapsuleHit, CapsuleStartCheck, CheckLocation,
+		FQuat::Identity, ECC_WorldStatic, Capsule->GetCollisionShape(), ClimbQueryParams);
+
+	return !bBlocked;
+}
+
+void UStumbleClimbComponent::SetRotationToStand() const
+{
+	const FRotator StandRotation = FRotator(0, UpdatedComponent->GetComponentRotation().Yaw, 0);
+	UpdatedComponent->SetRelativeRotation(StandRotation);
+}
+
+bool UStumbleClimbComponent::IsLocationWalkable(const FVector& CheckLocation) const
+{
+	const FVector CheckEnd = CheckLocation + (FVector::DownVector * 250);
+
+	FHitResult LedgeHit;
+	const bool bHitLedgeGround = GetWorld()->LineTraceSingleByChannel(LedgeHit, CheckLocation, CheckEnd,
+		ECC_WorldStatic, ClimbQueryParams);
+
+	return bHitLedgeGround && LedgeHit.Normal.Z >= GetWalkableFloorZ();
+}
+
+void UStumbleClimbComponent::TryClimbDashing()
+{
+	if (ClimbDashCurve && bIsClimbDashing == false)
+	{
+		bIsClimbDashing = true;
+		CurrentClimbDashTime = 0.f;
+
+		StoreClimbDashDirection();
+	}
+}
+
+void UStumbleClimbComponent::StoreClimbDashDirection()
+{
+	ClimbDashDirection = UpdatedComponent->GetUpVector();
+
+	const float AccelerationThreshold = MaxClimbingAcceleration / 10;
+	if (Acceleration.Length() > AccelerationThreshold)
+	{
+		ClimbDashDirection = Acceleration.GetSafeNormal();
+	}
+}
+
+void UStumbleClimbComponent::StopClimbDashing()
+{
+	bIsClimbDashing = false;
+	CurrentClimbDashTime = 0.f;
+	ClimbDashDirection = FVector::ZeroVector;
+}
+
+void UStumbleClimbComponent::UpdateClimbDashState(float deltaTime)
+{
+	if (!bIsClimbDashing)
+	{
+		return;
+	}
+
+	CurrentClimbDashTime += deltaTime;
+
+	// Better to cache it when dash starts
+	float MinTime, MaxTime;
+	ClimbDashCurve->GetTimeRange(MinTime, MaxTime);
+
+	if (CurrentClimbDashTime >= MaxTime)
+	{
+		StopClimbDashing();
+	}
+}
+
+void UStumbleClimbComponent::AlignClimbDashDirection()
+{
+	const FVector HorizontalSurfaceNormal = GetClimbSurfaceNormal();
+
+	ClimbDashDirection = FVector::VectorPlaneProject(ClimbDashDirection, HorizontalSurfaceNormal);
+}
+
+bool UStumbleClimbComponent::IsClimbDashing() const
+{
+	return IsClimbing() && bIsClimbDashing;
+}
+
+FVector UStumbleClimbComponent::GetClimbDashDirection() const
+{
+	return ClimbDashDirection;
 }
