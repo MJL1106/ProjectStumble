@@ -106,20 +106,36 @@ void AStumbleCharacterbase::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 void AStumbleCharacterbase::Landed(const FHitResult& Hit)
 {
+	bIsJumping = false;
 	Super::Landed(Hit);
-
 	AStumblePlayerController* StumblePlayerController = GetController<AStumblePlayerController>();
 	if (StumblePlayerController)
 	{
 		const float FallImpactSpeed = FMath::Abs(GetVelocity().Z);
+		UE_LOG(LogTemp, Warning, TEXT("Fall Impact Speed: %f"), FallImpactSpeed)
 		if (FallImpactSpeed < MinImpactSpeed)
 		{
 			return;
 		}
 		else
 		{
-			if (HeavyLandSound && GetOwner())
+			if (HeavyLandMontage && GetOwner())
 			{
+				UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+				if (AnimInstance && AnimInstance->Montage_IsPlaying(HeavyLandMontage))
+				{
+					return;
+				}
+				else
+				{
+					GetCharacterMovement()->DisableMovement();
+					AnimInstance->Montage_Play(HeavyLandMontage);
+					GetWorldTimerManager().SetTimer(UnfreezeTimerHandle, this, &AStumbleCharacterbase::EnableMovement, 1.25f, false);
+
+				}
+
+
 				FVector CharacterLocation = GetOwner()->GetActorLocation();
 				UGameplayStatics::PlaySoundAtLocation(this, HeavyLandSound, CharacterLocation);
 			}
@@ -131,12 +147,12 @@ void AStumbleCharacterbase::Landed(const FHitResult& Hit)
 		const bool bAffectLarge = FallRatio > 0.5;
 
 		StumblePlayerController->PlayDynamicForceFeedback(FallRatio, 0.5f, bAffectLarge, bAffectSmall, bAffectLarge, bAffectSmall);
-
-		//if (bAffectLarge)
-		//{
-		//	OnStunBegin(FallRatio);
-		//}
 	}
+}
+
+void AStumbleCharacterbase::EnableMovement()
+{
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }
 
 void AStumbleCharacterbase::Jump()
@@ -147,6 +163,7 @@ void AStumbleCharacterbase::Jump()
 	}
 	else
 	{
+		bIsJumping = true;
 		Super::Jump();
 	}
 }
@@ -234,7 +251,21 @@ void AStumbleCharacterbase::EndCrouch()
 
 void AStumbleCharacterbase::RequestGrabStart()
 {
-	bIsGrabbing = true;
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (AnimInstance && AnimInstance->Montage_IsPlaying(PickUpMontage))
+	{
+		return;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Grabbing::Pickup object"));
+		GetCharacterMovement()->DisableMovement();
+		AnimInstance->Montage_Play(PickUpMontage);
+		GetWorldTimerManager().SetTimer(UnfreezeTimerHandle, this, &AStumbleCharacterbase::EnableMovement, 1.85f, false);
+
+	}
+	//bIsGrabbing = true;
 }
 
 void AStumbleCharacterbase::RequestGrabStop()

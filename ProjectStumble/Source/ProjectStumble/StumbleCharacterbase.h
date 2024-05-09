@@ -79,14 +79,24 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* OpeningDoorMontage = nullptr;
 
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* HeavyLandMontage = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* PickUpMontage = nullptr;
+
 	FOnMontageBlendingOutStarted BlendingOutDelegate;
 	FOnMontageEnded MontageEndedDelegate;
+
+	FTimerHandle UnfreezeTimerHandle;
 
 	bool bIsSprinting = false;
 
 	bool bIsCrouching = false;
 
 	bool bIsGrabbing = false;
+
+	bool bIsJumping = false;
 
 	bool bIsOpeningDoor = false;
 
@@ -104,6 +114,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void Landed(const FHitResult& Hit) override;
+
+	void EnableMovement();
 
 	void RequestSprint();
 	void RequestStopSprint();
@@ -135,6 +147,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsOpeningDoor() const { return bIsOpeningDoor; }
+
+	UFUNCTION(BlueprintPure)
+	bool IsJumping() const { return bIsJumping; }
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DoorOpenInteractionStarted(AActor* InteractableActor);
