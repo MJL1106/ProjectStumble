@@ -5,6 +5,7 @@
 #include "ECustomMovement.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
+#include "StumbleCharacterbase.h"
 
 UStumbleClimbComponent::UStumbleClimbComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -118,6 +119,7 @@ void UStumbleClimbComponent::OnMovementModeChanged(EMovementMode PreviousMovemen
 	const bool bWasClimbing = PreviousMovementMode == MOVE_Custom && PreviousCustomMode == CMOVE_Climbing;
 	if (bWasClimbing)
 	{
+		
 		bOrientRotationToMovement = true;
 
 		const FRotator StandRotation = FRotator(0, UpdatedComponent->GetComponentRotation().Yaw, 0);

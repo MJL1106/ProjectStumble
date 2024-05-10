@@ -126,6 +126,7 @@ public:
 
 	void EnableMovement();
 
+
 	void RequestSprint();
 	void RequestStopSprint();
 
@@ -159,6 +160,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsJumping() const { return bIsJumping; }
+
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DoorOpenInteractionStarted(AActor* InteractableActor);

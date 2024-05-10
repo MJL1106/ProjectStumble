@@ -162,10 +162,12 @@ void AStumbleCharacterbase::Landed(const FHitResult& Hit)
 	}
 }
 
+
 void AStumbleCharacterbase::EnableMovement()
 {
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }
+
 
 void AStumbleCharacterbase::Jump()
 {
