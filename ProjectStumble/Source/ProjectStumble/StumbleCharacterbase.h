@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Sound/SoundCue.h"
 #include "StumbleCharacterbase.generated.h"
 
@@ -23,6 +25,12 @@ class PROJECTSTUMBLE_API AStumbleCharacterbase : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AStumbleCharacterbase(const FObjectInitializer& ObjectInitializer);
+
+	UPROPERTY(EditAnywhere)
+	USpringArmComponent* CameraBoom;
+
+	UPROPERTY(EditAnywhere)
+	UCameraComponent* CameraMain;
 
 protected:
 	// Called when the game starts or when spawned
@@ -106,6 +114,7 @@ protected:
 
 	FRotationMatrix GetControlOrientationMatrix() const;
 
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -116,6 +125,7 @@ public:
 	virtual void Landed(const FHitResult& Hit) override;
 
 	void EnableMovement();
+
 
 	void RequestSprint();
 	void RequestStopSprint();
@@ -151,10 +161,12 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsJumping() const { return bIsJumping; }
 
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void DoorOpenInteractionStarted(AActor* InteractableActor);
 
 	FOnInteractionStart OnInteractionStart;
 	FOnInteractionCancel OnInteractionCancel;
+
 
 };

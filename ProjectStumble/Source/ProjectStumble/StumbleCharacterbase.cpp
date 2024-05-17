@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "StumbleClimbComponent.h"
 #include "GameFramework/Character.h"
+#include "Components/CapsuleComponent.h"
 #include "StumblePlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -40,12 +41,21 @@ static TAutoConsoleVariable<bool> CVarDisplayThrowVelocity(
 AStumbleCharacterbase::AStumbleCharacterbase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UStumbleClimbComponent>(ACharacter::CharacterMovementComponentName))
 {
- 	
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 30.0f), FRotator(0.0f, 0.0f, 0.0f));
+	CameraBoom->TargetArmLength = 400.0f;
+	
+	CameraMain = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraMain"));
+	CameraMain->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+
+
 	PrimaryActorTick.bCanEverTick = true;
 	InterpSpeed = 5.0f;
 	SlowInterpSpeed = 2.0f;
 	TargetMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 	MovementComponent = Cast<UStumbleClimbComponent>(GetCharacterMovement());
+
 }
 
 // Called when the game starts or when spawned
@@ -69,6 +79,7 @@ void AStumbleCharacterbase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
 	if (!IsLocallyControlled())
 	{
 		return;
@@ -81,6 +92,7 @@ void AStumbleCharacterbase::Tick(float DeltaTime)
 	// Changes the interp speed depending on player going from stop to moving or moving to stop
 	float CurrentInterpSpeed = IsMoving ? InterpSpeed : SlowInterpSpeed;
 	float NewTargetSpeed = 300.0f;
+
 	if (bIsCrouching)
 	{
 		NewTargetSpeed = IsMoving ? TargetMaxWalkSpeed : 10.0f;
@@ -150,10 +162,12 @@ void AStumbleCharacterbase::Landed(const FHitResult& Hit)
 	}
 }
 
+
 void AStumbleCharacterbase::EnableMovement()
 {
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 }
+
 
 void AStumbleCharacterbase::Jump()
 {
@@ -239,12 +253,37 @@ void AStumbleCharacterbase::RequestStopSprint()
 
 void AStumbleCharacterbase::StartCrouch()
 {
+	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+	if (CapsuleComp)
+	{
+		float OriginalHalfHeight = CapsuleComp->GetUnscaledCapsuleHalfHeight();
+		float NewHalfHeight = OriginalHalfHeight * 0.5;
+
+		float DeltaHeight = OriginalHalfHeight - NewHalfHeight;
+
+		CapsuleComp->SetCapsuleHalfHeight(NewHalfHeight, true);
+
+		FVector NewLocation = GetActorLocation();
+		NewLocation.Z -= DeltaHeight / 2;
+		SetActorLocation(NewLocation);
+	}
 	bIsCrouching = true;
 	TargetMaxWalkSpeed = CrouchSpeed;
 }
 
 void AStumbleCharacterbase::EndCrouch()
 {
+	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+	if (CapsuleComp)
+	{
+		float CrouchedHalfHeight = CapsuleComp->GetUnscaledCapsuleHalfHeight();
+		float OriginalHalfHeight = CrouchedHalfHeight * 2;
+
+		float DeltaHeight = OriginalHalfHeight - CrouchedHalfHeight;
+
+		CapsuleComp->SetCapsuleHalfHeight(OriginalHalfHeight, true);	
+	}
+
 	bIsCrouching = false;
 	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 }
@@ -259,13 +298,11 @@ void AStumbleCharacterbase::RequestGrabStart()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Grabbing::Pickup object"));
 		GetCharacterMovement()->DisableMovement();
 		AnimInstance->Montage_Play(PickUpMontage);
 		GetWorldTimerManager().SetTimer(UnfreezeTimerHandle, this, &AStumbleCharacterbase::EnableMovement, 1.85f, false);
 
 	}
-	//bIsGrabbing = true;
 }
 
 void AStumbleCharacterbase::RequestGrabStop()
