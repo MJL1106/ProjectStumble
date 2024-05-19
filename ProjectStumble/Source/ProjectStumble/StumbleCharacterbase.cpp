@@ -440,7 +440,9 @@ void AStumbleCharacterbase::StopInteraction()
 bool AStumbleCharacterbase::PlayOpeningDoorMontage()
 {
 	const float PlayRate = 1.0f;
+	GetCharacterMovement()->DisableMovement();
 	bool bPlayedSuccessfully = PlayAnimMontage(OpeningDoorMontage, PlayRate) > 0.0f;
+	GetWorldTimerManager().SetTimer(UnfreezeTimerHandle, this, &AStumbleCharacterbase::EnableMovement, 1.85f, false);
 	if (bPlayedSuccessfully)
 	{
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
