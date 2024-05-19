@@ -133,8 +133,40 @@ void AStumbleCharacterbase::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 }
 
+bool AStumbleCharacterbase::IsCollidingWithWall() const
+{
+	FVector Start = GetActorLocation();
+	FVector ForwardVector = GetActorForwardVector();
+	FVector End = Start + ForwardVector * 50.0f; // Sets the distance check from player to wall
+
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this);
+
+	bool bBlockingHit = GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		Start,
+		End,
+		ECC_Visibility,
+		CollisionParams
+	);
+
+	if (bBlockingHit && HitResult.Normal.Z < 0.1f) // Checks that the player is on the ground
+	{
+		return true;
+	}
+
+	return false;
+}
+
+//Changes the rotation of the player 
 void AStumbleCharacterbase::UpdateCharacterRotation()
 {
+	if (IsCollidingWithWall())
+	{
+		return;
+	}
+
 	FVector MovementDirection = GetVelocity();
 	MovementDirection.Z = 0;
 
@@ -145,7 +177,7 @@ void AStumbleCharacterbase::UpdateCharacterRotation()
 		float DeltaTime = GetWorld()->GetDeltaSeconds();
 		float RotationSpeed = 10.0f;
 
-		FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, RotationSpeed);
+		FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, RotationSpeed); //Interpolates the rotation speed of the character
 		SetActorRotation(NewRotation);
 	}
 }
@@ -296,10 +328,24 @@ void AStumbleCharacterbase::StartCrouch()
 
 void AStumbleCharacterbase::EndCrouch()
 {
+	FVector Start = GetActorLocation();
+	FVector End = Start + FVector(0, 0, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * 2);
 
-	bIsCrouching = false;
-	UnCrouch();
-	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
+	//Stops the player from uncrouching if the object above is too low to stand
+	FHitResult OutHit;
+	bool bBlockingHit = GetWorld()->LineTraceSingleByChannel(
+		OutHit,
+		Start,
+		End,
+		ECC_Visibility
+	);
+
+	if (!bBlockingHit)
+	{
+		bIsCrouching = false;
+		UnCrouch();
+		GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
+	}
 }
 
 void AStumbleCharacterbase::RequestGrabStart()

@@ -120,6 +120,7 @@ protected:
 
 	FRotationMatrix GetControlOrientationMatrix() const;
 
+	bool IsCollidingWithWall() const;
 
 public:	
 	// Called every frame
