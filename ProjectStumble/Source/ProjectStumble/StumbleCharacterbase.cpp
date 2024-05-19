@@ -290,6 +290,7 @@ void AStumbleCharacterbase::RequestStopSprint()
 void AStumbleCharacterbase::StartCrouch()
 {
 	bIsCrouching = true;
+	Crouch();
 	TargetMaxWalkSpeed = CrouchSpeed;
 }
 
@@ -297,6 +298,7 @@ void AStumbleCharacterbase::EndCrouch()
 {
 
 	bIsCrouching = false;
+	UnCrouch();
 	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 }
 
