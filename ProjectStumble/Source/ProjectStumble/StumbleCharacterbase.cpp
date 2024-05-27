@@ -46,6 +46,9 @@ AStumbleCharacterbase::AStumbleCharacterbase(const FObjectInitializer& ObjectIni
 	CameraBoom->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 30.0f), FRotator(0.0f, 0.0f, 0.0f));
 	CameraBoom->TargetArmLength = 400.0f;
 	
+	CameraBoom->bEnableCameraLag = false;
+	CameraBoom->bEnableCameraRotationLag = false;
+
 	CameraMain = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraMain"));
 	CameraMain->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 
@@ -79,6 +82,7 @@ void AStumbleCharacterbase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	SmoothCameraTransition(DeltaTime);
 
 	if (!IsLocallyControlled())
 	{
@@ -109,11 +113,73 @@ void AStumbleCharacterbase::Tick(float DeltaTime)
 	}
 }
 
+void AStumbleCharacterbase::SmoothCameraTransition(float DeltaTime)
+{
+	// Smoothly adjust the spring arm length
+	float TargetArmLength = bIsCrouching ? 300.0f : 400.0f;
+	CameraBoom->TargetArmLength = FMath::FInterpTo(CameraBoom->TargetArmLength, TargetArmLength, DeltaTime, 5.0f);
+
+	// Smoothly adjust the vertical position
+	float TargetHeight = bIsCrouching ? CrouchingCameraHeight : StandingCameraHeight;
+	FVector CurrentLocation = CameraBoom->GetRelativeLocation();
+	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, TargetHeight, DeltaTime, 5.0f);
+	CameraBoom->SetRelativeLocation(CurrentLocation);
+}
+
 // Called to bind functionality to input
 void AStumbleCharacterbase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+bool AStumbleCharacterbase::IsCollidingWithWall() const
+{
+	FVector Start = GetActorLocation();
+	FVector ForwardVector = GetActorForwardVector();
+	FVector End = Start + ForwardVector * 50.0f; // Sets the distance check from player to wall
+
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(this);
+
+	bool bBlockingHit = GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		Start,
+		End,
+		ECC_Visibility,
+		CollisionParams
+	);
+
+	if (bBlockingHit && HitResult.Normal.Z < 0.1f) // Checks that the player is on the ground
+	{
+		return true;
+	}
+
+	return false;
+}
+
+//Changes the rotation of the player 
+void AStumbleCharacterbase::UpdateCharacterRotation()
+{
+	if (IsCollidingWithWall())
+	{
+		return;
+	}
+
+	FVector MovementDirection = GetVelocity();
+	MovementDirection.Z = 0;
+
+	if (!MovementDirection.IsNearlyZero())
+	{
+		FRotator TargetRotation = MovementDirection.Rotation();
+		FRotator CurrentRotation = GetActorRotation();
+		float DeltaTime = GetWorld()->GetDeltaSeconds();
+		float RotationSpeed = 10.0f;
+
+		FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, RotationSpeed); //Interpolates the rotation speed of the character
+		SetActorRotation(NewRotation);
+	}
 }
 
 void AStumbleCharacterbase::Landed(const FHitResult& Hit)
@@ -198,6 +264,7 @@ void AStumbleCharacterbase::MoveForward(float Value)
 	}
 	else
 	{
+		UpdateCharacterRotation();
 		Direction = GetControlOrientationMatrix().GetUnitAxis(EAxis::X);
 	}
 
@@ -219,6 +286,7 @@ void AStumbleCharacterbase::MoveRight(float Value)
 	}
 	else
 	{
+		UpdateCharacterRotation();
 		Direction = GetControlOrientationMatrix().GetUnitAxis(EAxis::Y);
 	}
 
@@ -253,39 +321,31 @@ void AStumbleCharacterbase::RequestStopSprint()
 
 void AStumbleCharacterbase::StartCrouch()
 {
-	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
-	if (CapsuleComp)
-	{
-		float OriginalHalfHeight = CapsuleComp->GetUnscaledCapsuleHalfHeight();
-		float NewHalfHeight = OriginalHalfHeight * 0.5;
-
-		float DeltaHeight = OriginalHalfHeight - NewHalfHeight;
-
-		CapsuleComp->SetCapsuleHalfHeight(NewHalfHeight, true);
-
-		FVector NewLocation = GetActorLocation();
-		NewLocation.Z -= DeltaHeight / 2;
-		SetActorLocation(NewLocation);
-	}
 	bIsCrouching = true;
+	Crouch();
 	TargetMaxWalkSpeed = CrouchSpeed;
 }
 
 void AStumbleCharacterbase::EndCrouch()
 {
-	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
-	if (CapsuleComp)
+	FVector Start = GetActorLocation();
+	FVector End = Start + FVector(0, 0, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() * 2);
+
+	//Stops the player from uncrouching if the object above is too low to stand
+	FHitResult OutHit;
+	bool bBlockingHit = GetWorld()->LineTraceSingleByChannel(
+		OutHit,
+		Start,
+		End,
+		ECC_Visibility
+	);
+
+	if (!bBlockingHit)
 	{
-		float CrouchedHalfHeight = CapsuleComp->GetUnscaledCapsuleHalfHeight();
-		float OriginalHalfHeight = CrouchedHalfHeight * 2;
-
-		float DeltaHeight = OriginalHalfHeight - CrouchedHalfHeight;
-
-		CapsuleComp->SetCapsuleHalfHeight(OriginalHalfHeight, true);	
+		bIsCrouching = false;
+		UnCrouch();
+		GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 	}
-
-	bIsCrouching = false;
-	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 }
 
 void AStumbleCharacterbase::RequestGrabStart()
@@ -380,7 +440,9 @@ void AStumbleCharacterbase::StopInteraction()
 bool AStumbleCharacterbase::PlayOpeningDoorMontage()
 {
 	const float PlayRate = 1.0f;
+	GetCharacterMovement()->DisableMovement();
 	bool bPlayedSuccessfully = PlayAnimMontage(OpeningDoorMontage, PlayRate) > 0.0f;
+	GetWorldTimerManager().SetTimer(UnfreezeTimerHandle, this, &AStumbleCharacterbase::EnableMovement, 1.85f, false);
 	if (bPlayedSuccessfully)
 	{
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();

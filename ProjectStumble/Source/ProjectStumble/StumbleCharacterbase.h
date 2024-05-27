@@ -69,6 +69,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float SlowInterpSpeed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float StandingCameraHeight = 30.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float CrouchingCameraHeight = 15.0f;
+
 	UPROPERTY(EditAnywhere, Category = "Fall Impact")
 	float MinImpactSpeed = 100.0f;
 
@@ -114,6 +120,7 @@ protected:
 
 	FRotationMatrix GetControlOrientationMatrix() const;
 
+	bool IsCollidingWithWall() const;
 
 public:	
 	// Called every frame
@@ -143,6 +150,10 @@ public:
 	void CancelClimb();
 
 	void Jump();
+
+	void UpdateCharacterRotation();
+
+	void SmoothCameraTransition(float DeltaTime);
 
 	void MoveForward(float AxisValue);
 
