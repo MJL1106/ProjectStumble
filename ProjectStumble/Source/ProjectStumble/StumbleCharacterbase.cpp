@@ -90,11 +90,12 @@ void AStumbleCharacterbase::Tick(float DeltaTime)
 	{
 		return;
 	}
+	
 
-	//if (bIsAimingChar)
-	//{
-	//	UpdateCharacterRotationToCamera();
-	//}
+	if (bIsAimingChar && IsCharacterNotMoving())
+	{
+		UpdateCharacterRotationToCamera(DeltaTime);
+	}
 
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0;
@@ -118,6 +119,12 @@ void AStumbleCharacterbase::Tick(float DeltaTime)
 		float PreviousSpeed = GetCharacterMovement()->MaxWalkSpeed;
 		GetCharacterMovement()->MaxWalkSpeed = FMath::FInterpTo(PreviousSpeed, NewTargetSpeed, DeltaTime, CurrentInterpSpeed);
 	}
+}
+
+bool AStumbleCharacterbase::IsCharacterNotMoving() {
+	FVector Velocity = GetVelocity();
+
+	return Velocity.SizeSquared() < KINDA_SMALL_NUMBER;
 }
 
 void AStumbleCharacterbase::SmoothCameraTransition(float DeltaTime)
@@ -316,12 +323,17 @@ void AStumbleCharacterbase::AdjustCameraForAiming(bool bIsAiming)
 
 }
 
-void AStumbleCharacterbase::UpdateCharacterRotationToCamera()
+void AStumbleCharacterbase::UpdateCharacterRotationToCamera(float DeltaTime)
 {
-	FRotator CameraRotation = CameraMain->GetComponentRotation();
-	CameraRotation.Pitch = 0.0f;
-	CameraRotation.Roll = 0.0f;
-	SetActorRotation(CameraRotation);
+	FRotator CurrentRotation = GetActorRotation();
+	FRotator TargetRotation = CameraMain->GetComponentRotation();
+	TargetRotation.Pitch = 0.0f;
+	TargetRotation.Roll = 0.0f;
+
+	float IS = 8.0f;
+	FRotator NewRotation = FMath::RInterpTo(CurrentRotation, TargetRotation, DeltaTime, IS);
+
+	SetActorRotation(NewRotation);
 }
 
 FRotationMatrix AStumbleCharacterbase::GetControlOrientationMatrix() const

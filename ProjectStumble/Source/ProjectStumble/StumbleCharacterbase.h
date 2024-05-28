@@ -41,7 +41,9 @@ protected:
 
 	bool PlayOpeningDoorMontage();
 
-	void UpdateCharacterRotationToCamera();
+	void UpdateCharacterRotationToCamera(float DeltaTime);
+
+	bool IsCharacterNotMoving();
 
 	UFUNCTION()
 	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
