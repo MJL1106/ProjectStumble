@@ -46,6 +46,9 @@ void AStumblePlayerController::SetupInputComponent()
 		InputComponent->BindAction("Grab", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestGrabStart);
 		InputComponent->BindAction("Grab", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestGrabStop);
 
+		InputComponent->BindAction("Aim", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestAimStart);
+		InputComponent->BindAction("Aim", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestAimStop);
+
 		InputComponent->BindAction("InteractionStart", IE_Pressed, this, &AStumblePlayerController::StartInteraction);
 		InputComponent->BindAction("InteractionStart", IE_Pressed, this, &AStumblePlayerController::StopInteraction);
 
@@ -61,6 +64,8 @@ void AStumblePlayerController::SetupInputComponent()
 		//InputComponent->BindAction(TEXT("PullObject"), EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestPullObjectStart);
 		//InputComponent->BindAction(TEXT("PullObject"), EInputEvent::IE_Released, this, &AStumblePlayerController::RequestPullObjectStop);
 		//InputComponent->BindAxis(TEXT("ThrowObject"), this, &AStumblePlayerController::RequestThrowObject);
+
+		bIsAiming = false;
 	}
 }
 
@@ -178,12 +183,36 @@ void AStumblePlayerController::RequestMoveRight(float AxisValue)
 
 void AStumblePlayerController::RequestLookUp(float AxisValue)
 {
-	AddPitchInput(AxisValue * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	if (bIsAiming)
+	{
+		// Rotate the player character when aiming
+		if (APawn* ControlledPawn = GetPawn())
+		{
+			ControlledPawn->AddControllerPitchInput(AxisValue * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+		}
+	}
+	else
+	{
+		// Usual camera pitch control
+		AddPitchInput(AxisValue * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	}
 }
 
 void AStumblePlayerController::RequestLookRight(float AxisValue)
 {
-	AddYawInput(AxisValue * BaseLookRightRate * GetWorld()->GetDeltaSeconds());
+	if (bIsAiming)
+	{
+		// Rotate the player character when aiming
+		if (APawn* ControlledPawn = GetPawn())
+		{
+			ControlledPawn->AddControllerYawInput(AxisValue * BaseLookRightRate * GetWorld()->GetDeltaSeconds());
+		}
+	}
+	else
+	{
+		// Usual camera yaw control
+		AddYawInput(AxisValue * BaseLookRightRate * GetWorld()->GetDeltaSeconds());
+	}
 }
 
 void AStumblePlayerController::Climb()
@@ -199,5 +228,23 @@ void AStumblePlayerController::CancelClimb()
 	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
 	{
 		StumbleCharacterbase->CancelClimb();
+	}
+}
+
+void AStumblePlayerController::RequestAimStart()
+{
+	bIsAiming = true;
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->AdjustCameraForAiming(true);
+	}
+}
+
+void AStumblePlayerController::RequestAimStop()
+{
+	bIsAiming = false;
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->AdjustCameraForAiming(false);
 	}
 }

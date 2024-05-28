@@ -52,6 +52,8 @@ AStumbleCharacterbase::AStumbleCharacterbase(const FObjectInitializer& ObjectIni
 	CameraMain = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraMain"));
 	CameraMain->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 
+	DefaultCameraOffset = CameraBoom->GetRelativeLocation();
+	DefaultTargetArmLength = CameraBoom->TargetArmLength;
 
 	PrimaryActorTick.bCanEverTick = true;
 	InterpSpeed = 5.0f;
@@ -87,6 +89,11 @@ void AStumbleCharacterbase::Tick(float DeltaTime)
 	if (!IsLocallyControlled())
 	{
 		return;
+	}
+
+	if (bIsAimingChar)
+	{
+		UpdateCharacterRotationToCamera();
 	}
 
 	FVector Velocity = GetVelocity();
@@ -190,7 +197,6 @@ void AStumbleCharacterbase::Landed(const FHitResult& Hit)
 	if (StumblePlayerController)
 	{
 		const float FallImpactSpeed = FMath::Abs(GetVelocity().Z);
-		UE_LOG(LogTemp, Warning, TEXT("Fall Impact Speed: %f"), FallImpactSpeed)
 		if (FallImpactSpeed < MinImpactSpeed)
 		{
 			return;
@@ -291,6 +297,31 @@ void AStumbleCharacterbase::MoveRight(float Value)
 	}
 
 	AddMovementInput(Direction, Value);
+}
+
+void AStumbleCharacterbase::AdjustCameraForAiming(bool bIsAiming)
+{
+	//if (bIsAiming)
+	//{
+	//	// Adjust camera settings for aiming
+	//	CameraBoom->TargetArmLength = 300.0f; // Zoom in
+	//}
+	//else
+	//{
+	//	// Revert camera settings back to normal
+	//	CameraBoom->TargetArmLength = DefaultTargetArmLength; // Revert zoom
+	//	CameraBoom->SetRelativeLocation(DefaultCameraOffset); // Revert camera position
+	//}
+	bIsAimingChar = bIsAiming;
+
+}
+
+void AStumbleCharacterbase::UpdateCharacterRotationToCamera()
+{
+	FRotator CameraRotation = CameraMain->GetComponentRotation();
+	CameraRotation.Pitch = 0.0f;
+	CameraRotation.Roll = 0.0f;
+	SetActorRotation(CameraRotation);
 }
 
 FRotationMatrix AStumbleCharacterbase::GetControlOrientationMatrix() const

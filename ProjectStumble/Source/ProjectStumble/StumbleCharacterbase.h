@@ -41,6 +41,8 @@ protected:
 
 	bool PlayOpeningDoorMontage();
 
+	void UpdateCharacterRotationToCamera();
+
 	UFUNCTION()
 	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
 
@@ -112,6 +114,8 @@ protected:
 
 	bool bIsJumping = false;
 
+	bool bIsAimingChar = false;
+
 	bool bIsOpeningDoor = false;
 
 	float MaxWalkSpeed = 0.0f;
@@ -121,6 +125,9 @@ protected:
 	FRotationMatrix GetControlOrientationMatrix() const;
 
 	bool IsCollidingWithWall() const;
+
+	FVector DefaultCameraOffset;
+	float DefaultTargetArmLength;
 
 public:	
 	// Called every frame
@@ -139,6 +146,7 @@ public:
 
 	void RequestGrabStart();
 	void RequestGrabStop();
+	void AdjustCameraForAiming(bool bIsAiming);
 
 	void StartInteraction();
 	void StopInteraction();
@@ -165,6 +173,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsGrabbing() const { return bIsGrabbing; }
+
+	UFUNCTION(BlueprintPure)
+	bool IsAiming() const { return bIsAimingChar; }
 
 	UFUNCTION(BlueprintPure)
 	bool IsOpeningDoor() const { return bIsOpeningDoor; }
