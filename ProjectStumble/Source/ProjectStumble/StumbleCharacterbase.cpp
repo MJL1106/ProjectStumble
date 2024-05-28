@@ -91,10 +91,10 @@ void AStumbleCharacterbase::Tick(float DeltaTime)
 		return;
 	}
 
-	if (bIsAimingChar)
-	{
-		UpdateCharacterRotationToCamera();
-	}
+	//if (bIsAimingChar)
+	//{
+	//	UpdateCharacterRotationToCamera();
+	//}
 
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0;
