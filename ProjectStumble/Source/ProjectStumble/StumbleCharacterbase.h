@@ -29,7 +29,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	USpringArmComponent* CameraBoom;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* CameraMain;
 
 protected:
@@ -40,8 +40,6 @@ protected:
 	UStumbleClimbComponent* MovementComponent;
 
 	bool PlayOpeningDoorMontage();
-
-	void UpdateCharacterRotationToCamera(float DeltaTime);
 
 	bool IsCharacterNotMoving();
 
@@ -68,6 +66,9 @@ protected:
 	float CrouchSpeed = 150.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
+	float AimSpeed = 300.0;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
 	float InterpSpeed;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
@@ -75,6 +76,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	float StandingCameraHeight = 30.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float AimingCameraHeight = 45.0f;;;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	float CrouchingCameraHeight = 15.0f;
@@ -120,6 +124,8 @@ protected:
 
 	bool bIsOpeningDoor = false;
 
+	bool bIsLookingOverRightShoulder = true;
+
 	float MaxWalkSpeed = 0.0f;
 
 	float TargetMaxWalkSpeed;
@@ -130,6 +136,7 @@ protected:
 
 	FVector DefaultCameraOffset;
 	float DefaultTargetArmLength;
+	float MovementInputRight;
 
 public:	
 	// Called every frame
@@ -185,9 +192,18 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsJumping() const { return bIsJumping; }
 
+	UFUNCTION(BlueprintPure)
+	bool IsSprinting() const { return bIsSprinting; }
+
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DoorOpenInteractionStarted(AActor* InteractableActor);
+
+	UFUNCTION(BlueprintPure)
+	UCameraComponent* GetCameraComponent() const { return CameraMain; }
+
+	UFUNCTION(BlueprintPure)
+	float GetMoveDirection() const { return MovementInputRight; }
 
 	FOnInteractionStart OnInteractionStart;
 	FOnInteractionCancel OnInteractionCancel;
