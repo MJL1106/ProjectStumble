@@ -439,6 +439,7 @@ void AStumbleCharacterbase::EndCrouch()
 
 void AStumbleCharacterbase::RequestGrabStart()
 {
+	bIsGrabbing = true;
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 	if (AnimInstance && AnimInstance->Montage_IsPlaying(PickUpMontage))

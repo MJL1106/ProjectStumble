@@ -9,6 +9,7 @@
 #include "Sound/SoundCue.h"
 #include "StumbleCharacterbase.generated.h"
 
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionStart);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionCancel);
 
@@ -138,6 +139,7 @@ protected:
 	float DefaultTargetArmLength;
 	float MovementInputRight;
 
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -173,6 +175,7 @@ public:
 	void SmoothCameraTransition(float DeltaTime);
 
 	void MoveForward(float AxisValue);
+
 
 
 	void MoveRight(float AxisValue);
