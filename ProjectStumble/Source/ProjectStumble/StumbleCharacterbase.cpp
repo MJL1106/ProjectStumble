@@ -460,6 +460,16 @@ void AStumbleCharacterbase::RequestGrabStop()
 	bIsGrabbing = false;
 }
 
+void AStumbleCharacterbase::RequestDropWeaponStart()
+{
+	bIsDroppingWeapon = true;
+}
+
+void AStumbleCharacterbase::RequestDropWeaponStop()
+{
+	bIsDroppingWeapon = false;
+}
+
 void AStumbleCharacterbase::TryClimbing()
 {
 	MovementComponent->TryClimbing();

@@ -124,6 +124,8 @@ protected:
 
 	bool bIsOpeningDoor = false;
 
+	bool bIsDroppingWeapon = false;
+
 	bool bIsLookingOverRightShoulder = true;
 
 	float MaxWalkSpeed = 0.0f;
@@ -156,6 +158,10 @@ public:
 
 	void RequestGrabStart();
 	void RequestGrabStop();
+
+	void RequestDropWeaponStart();
+	void RequestDropWeaponStop();
+
 	void AdjustCameraForAiming(bool bIsAiming);
 
 	void StartInteraction();
@@ -196,6 +202,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsSprinting() const { return bIsSprinting; }
+
+	UFUNCTION(BlueprintPure)
+	bool IsDroppingWeapon() const { return bIsDroppingWeapon; }
 
 
 	UFUNCTION(BlueprintImplementableEvent)

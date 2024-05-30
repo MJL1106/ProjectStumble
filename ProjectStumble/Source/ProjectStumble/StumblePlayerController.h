@@ -44,6 +44,9 @@ protected:
 	void RequestAimStart();
 	void RequestAimStop();
 
+	void RequestDropWeaponStart();
+	void RequestDropWeaponStop();
+
 	void RequestMoveForward(float AxisValue);
 	void RequestMoveRight(float AxisValue);
 	void RequestLookUp(float AxisValue);

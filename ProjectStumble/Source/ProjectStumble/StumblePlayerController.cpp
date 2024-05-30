@@ -46,6 +46,9 @@ void AStumblePlayerController::SetupInputComponent()
 		InputComponent->BindAction("Grab", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestGrabStart);
 		InputComponent->BindAction("Grab", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestGrabStop);
 
+		InputComponent->BindAction("Drop", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestDropWeaponStart);
+		InputComponent->BindAction("Drop", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestDropWeaponStop);
+
 		InputComponent->BindAction("Aim", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestAimStart);
 		InputComponent->BindAction("Aim", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestAimStop);
 
@@ -158,6 +161,22 @@ void AStumblePlayerController::RequestGrabStop()
 	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
 	{
 		StumbleCharacterbase->RequestGrabStop();
+	}
+}
+
+void AStumblePlayerController::RequestDropWeaponStart()
+{
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->RequestDropWeaponStart();
+	}
+}
+
+void AStumblePlayerController::RequestDropWeaponStop()
+{
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->RequestDropWeaponStop();
 	}
 }
 
