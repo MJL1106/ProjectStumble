@@ -150,7 +150,7 @@ void AStumbleCharacterbase::SmoothCameraTransition(float DeltaTime)
 	float TargetHeight;
 	float TargetOffsetY = 50.0f; // Default Y offset for idle and left
 
-	if (bIsAimingChar)
+	if (bIsAimingChar && bIsWeaponAttached)
 	{
 		TargetArmLength = 200.0f; // Example value for aiming zoom
 		TargetHeight = AimingCameraHeight; // Define this in your class
@@ -372,7 +372,7 @@ void AStumbleCharacterbase::AdjustCameraForAiming(bool bIsAiming)
 {
 	bIsAimingChar = bIsAiming;
 
-	if (bIsAiming)
+	if (bIsAiming && bIsWeaponAttached)
 	{
 		GetCharacterMovement()->bOrientRotationToMovement = false;
 		bUseControllerRotationYaw = true;

@@ -113,7 +113,6 @@ protected:
 
 	FTimerHandle UnfreezeTimerHandle;
 
-	bool bIsSprinting = false;
 
 	bool bIsCrouching = false;
 
@@ -207,6 +206,12 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	float GetMoveDirection() const { return MovementInputRight; }
+
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
+	bool bIsWeaponAttached = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+	bool bIsSprinting = false;
 
 	FOnInteractionStart OnInteractionStart;
 	FOnInteractionCancel OnInteractionCancel;
