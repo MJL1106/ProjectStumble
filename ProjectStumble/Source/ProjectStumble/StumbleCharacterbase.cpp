@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 #include "StumblePlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/Engine.h"
 #include "Net/UnrealNetwork.h"
 
 
@@ -48,10 +49,18 @@ AStumbleCharacterbase::AStumbleCharacterbase(const FObjectInitializer& ObjectIni
 	
 	CameraBoom->bEnableCameraLag = false;
 	CameraBoom->bEnableCameraRotationLag = false;
+	CameraBoom->bUsePawnControlRotation = true;
 
 	CameraMain = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraMain"));
 	CameraMain->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	CameraMain->bUsePawnControlRotation = false;
 
+	DefaultCameraOffset = CameraBoom->GetRelativeLocation();
+	DefaultTargetArmLength = CameraBoom->TargetArmLength;
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
 
 	PrimaryActorTick.bCanEverTick = true;
 	InterpSpeed = 5.0f;
@@ -105,26 +114,83 @@ void AStumbleCharacterbase::Tick(float DeltaTime)
 	{
 		NewTargetSpeed = 10.0f;
 	}
-
-	if (!bIsSprinting)
+	else if (bIsAimingChar && bIsSprinting)
 	{
-		float PreviousSpeed = GetCharacterMovement()->MaxWalkSpeed;
-		GetCharacterMovement()->MaxWalkSpeed = FMath::FInterpTo(PreviousSpeed, NewTargetSpeed, DeltaTime, CurrentInterpSpeed);
+		NewTargetSpeed = SprintSpeed;
 	}
+	else if (bIsAimingChar)
+	{
+		NewTargetSpeed = IsMoving ? 300.0f : 10.0f;
+	}
+	else if (bIsSprinting)
+	{
+		NewTargetSpeed = SprintSpeed;
+	}
+	else if (IsMoving)
+	{
+		NewTargetSpeed = 300.0f;
+	}
+
+	// Interpolate the character's speed to the new target speed
+	float PreviousSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	float InterpolatedSpeed = FMath::FInterpTo(PreviousSpeed, NewTargetSpeed, DeltaTime, CurrentInterpSpeed);
+	GetCharacterMovement()->MaxWalkSpeed = InterpolatedSpeed;
+}
+
+bool AStumbleCharacterbase::IsCharacterNotMoving() {
+	FVector Velocity = GetVelocity();
+
+	return Velocity.SizeSquared() < KINDA_SMALL_NUMBER;
 }
 
 void AStumbleCharacterbase::SmoothCameraTransition(float DeltaTime)
 {
+	// Define the target values
+	float TargetArmLength;
+	float TargetHeight;
+	float TargetOffsetY = 50.0f; // Default Y offset for idle and left
+
+	if (bIsAimingChar && bIsWeaponAttached)
+	{
+		TargetArmLength = 200.0f; // Example value for aiming zoom
+		TargetHeight = AimingCameraHeight; // Define this in your class
+
+		// Adjust the Y offset based on movement direction
+		if (MovementInputRight > 0.1f) // Only offset further when moving right
+		{
+			if (bIsSprinting) {
+				TargetOffsetY = 120.0f;
+			}
+			else {
+				TargetOffsetY = 100.0f; // More offset when moving right
+			}
+			
+		}
+	}
+	else if (bIsCrouching)
+	{
+		TargetArmLength = 300.0f;
+		TargetHeight = CrouchingCameraHeight;
+		TargetOffsetY = 0.0f; // Reset Y offset when not aiming
+	}
+	else
+	{
+		TargetArmLength = 400.0f;
+		TargetHeight = StandingCameraHeight;
+		TargetOffsetY = 0.0f; // Reset Y offset when not aiming
+	}
+
 	// Smoothly adjust the spring arm length
-	float TargetArmLength = bIsCrouching ? 300.0f : 400.0f;
 	CameraBoom->TargetArmLength = FMath::FInterpTo(CameraBoom->TargetArmLength, TargetArmLength, DeltaTime, 5.0f);
 
-	// Smoothly adjust the vertical position
-	float TargetHeight = bIsCrouching ? CrouchingCameraHeight : StandingCameraHeight;
+	// Smoothly adjust the vertical position and Y offset
 	FVector CurrentLocation = CameraBoom->GetRelativeLocation();
-	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, TargetHeight, DeltaTime, 5.0f);
+	FVector TargetLocation = FVector(CurrentLocation.X, TargetOffsetY, TargetHeight); // Only adjust the Y-axis and Z-axis directly
+
+	CurrentLocation = FMath::VInterpTo(CurrentLocation, TargetLocation, DeltaTime, 5.0f);
 	CameraBoom->SetRelativeLocation(CurrentLocation);
 }
+
 
 // Called to bind functionality to input
 void AStumbleCharacterbase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -190,7 +256,6 @@ void AStumbleCharacterbase::Landed(const FHitResult& Hit)
 	if (StumblePlayerController)
 	{
 		const float FallImpactSpeed = FMath::Abs(GetVelocity().Z);
-		UE_LOG(LogTemp, Warning, TEXT("Fall Impact Speed: %f"), FallImpactSpeed)
 		if (FallImpactSpeed < MinImpactSpeed)
 		{
 			return;
@@ -241,8 +306,11 @@ void AStumbleCharacterbase::Jump()
 	{
 		MovementComponent->TryClimbDashing();
 	}
-	else
+	else if (bIsCrouching || bIsAimingChar)
 	{
+		return;
+	}
+	else {
 		bIsJumping = true;
 		Super::Jump();
 	}
@@ -274,9 +342,16 @@ void AStumbleCharacterbase::MoveForward(float Value)
 void AStumbleCharacterbase::MoveRight(float Value)
 {
 
-	if (Controller == nullptr || Value == 0.0f)
+	MovementInputRight = Value; // Store the input value
+
+	if (Controller == nullptr)
 	{
 		return;
+	}
+
+	if (Value == 0.0f)
+	{
+		MovementInputRight = 0.0f;
 	}
 
 	FVector Direction;
@@ -291,6 +366,24 @@ void AStumbleCharacterbase::MoveRight(float Value)
 	}
 
 	AddMovementInput(Direction, Value);
+}
+
+void AStumbleCharacterbase::AdjustCameraForAiming(bool bIsAiming)
+{
+	bIsAimingChar = bIsAiming;
+
+	if (bIsAiming && bIsWeaponAttached)
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		bUseControllerRotationYaw = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	}
+	else
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		bUseControllerRotationYaw = false;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	}
 }
 
 FRotationMatrix AStumbleCharacterbase::GetControlOrientationMatrix() const
@@ -308,15 +401,11 @@ void AStumbleCharacterbase::RequestSprint()
 		return;
 	}
 	bIsSprinting = true;
-	GetCharacterMovement()->MaxWalkSpeed += SprintSpeed;
-	ServerSprintStart();
 }
 
 void AStumbleCharacterbase::RequestStopSprint()
 {
 	bIsSprinting = false;
-	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
-	ServerSprintEnd();
 }
 
 void AStumbleCharacterbase::StartCrouch()
@@ -350,6 +439,7 @@ void AStumbleCharacterbase::EndCrouch()
 
 void AStumbleCharacterbase::RequestGrabStart()
 {
+	bIsGrabbing = true;
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 	if (AnimInstance && AnimInstance->Montage_IsPlaying(PickUpMontage))
@@ -368,6 +458,16 @@ void AStumbleCharacterbase::RequestGrabStart()
 void AStumbleCharacterbase::RequestGrabStop()
 {
 	bIsGrabbing = false;
+}
+
+void AStumbleCharacterbase::RequestDropWeaponStart()
+{
+	bIsDroppingWeapon = true;
+}
+
+void AStumbleCharacterbase::RequestDropWeaponStop()
+{
+	bIsDroppingWeapon = false;
 }
 
 void AStumbleCharacterbase::TryClimbing()

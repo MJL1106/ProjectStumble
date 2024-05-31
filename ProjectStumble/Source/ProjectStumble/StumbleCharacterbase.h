@@ -9,6 +9,7 @@
 #include "Sound/SoundCue.h"
 #include "StumbleCharacterbase.generated.h"
 
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionStart);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionCancel);
 
@@ -29,7 +30,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	USpringArmComponent* CameraBoom;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* CameraMain;
 
 protected:
@@ -40,6 +41,8 @@ protected:
 	UStumbleClimbComponent* MovementComponent;
 
 	bool PlayOpeningDoorMontage();
+
+	bool IsCharacterNotMoving();
 
 	UFUNCTION()
 	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
@@ -64,6 +67,9 @@ protected:
 	float CrouchSpeed = 150.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
+	float AimSpeed = 300.0;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
 	float InterpSpeed;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
@@ -71,6 +77,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	float StandingCameraHeight = 30.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	float AimingCameraHeight = 45.0f;;;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	float CrouchingCameraHeight = 15.0f;
@@ -104,7 +113,6 @@ protected:
 
 	FTimerHandle UnfreezeTimerHandle;
 
-	bool bIsSprinting = false;
 
 	bool bIsCrouching = false;
 
@@ -112,7 +120,13 @@ protected:
 
 	bool bIsJumping = false;
 
+	bool bIsAimingChar = false;
+
 	bool bIsOpeningDoor = false;
+
+	bool bIsDroppingWeapon = false;
+
+	bool bIsLookingOverRightShoulder = true;
 
 	float MaxWalkSpeed = 0.0f;
 
@@ -121,6 +135,11 @@ protected:
 	FRotationMatrix GetControlOrientationMatrix() const;
 
 	bool IsCollidingWithWall() const;
+
+	FVector DefaultCameraOffset;
+	float DefaultTargetArmLength;
+	float MovementInputRight;
+
 
 public:	
 	// Called every frame
@@ -140,6 +159,11 @@ public:
 	void RequestGrabStart();
 	void RequestGrabStop();
 
+	void RequestDropWeaponStart();
+	void RequestDropWeaponStop();
+
+	void AdjustCameraForAiming(bool bIsAiming);
+
 	void StartInteraction();
 	void StopInteraction();
 
@@ -158,6 +182,7 @@ public:
 	void MoveForward(float AxisValue);
 
 
+
 	void MoveRight(float AxisValue);
 
 	UFUNCTION(BlueprintPure)
@@ -167,14 +192,35 @@ public:
 	bool IsGrabbing() const { return bIsGrabbing; }
 
 	UFUNCTION(BlueprintPure)
+	bool IsAiming() const { return bIsAimingChar; }
+
+	UFUNCTION(BlueprintPure)
 	bool IsOpeningDoor() const { return bIsOpeningDoor; }
 
 	UFUNCTION(BlueprintPure)
 	bool IsJumping() const { return bIsJumping; }
 
+	UFUNCTION(BlueprintPure)
+	bool IsSprinting() const { return bIsSprinting; }
+
+	UFUNCTION(BlueprintPure)
+	bool IsDroppingWeapon() const { return bIsDroppingWeapon; }
+
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DoorOpenInteractionStarted(AActor* InteractableActor);
+
+	UFUNCTION(BlueprintPure)
+	UCameraComponent* GetCameraComponent() const { return CameraMain; }
+
+	UFUNCTION(BlueprintPure)
+	float GetMoveDirection() const { return MovementInputRight; }
+
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
+	bool bIsWeaponAttached = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Movement")
+	bool bIsSprinting = false;
 
 	FOnInteractionStart OnInteractionStart;
 	FOnInteractionCancel OnInteractionCancel;

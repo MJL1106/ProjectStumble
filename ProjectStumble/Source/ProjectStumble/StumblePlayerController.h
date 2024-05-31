@@ -41,6 +41,12 @@ protected:
 	void RequestSprint();
 	void RequestStopSprint();
 
+	void RequestAimStart();
+	void RequestAimStop();
+
+	void RequestDropWeaponStart();
+	void RequestDropWeaponStop();
+
 	void RequestMoveForward(float AxisValue);
 	void RequestMoveRight(float AxisValue);
 	void RequestLookUp(float AxisValue);
@@ -60,6 +66,7 @@ protected:
 	
 	FRotationMatrix GetControlOrientationMatrix() const;
 
+	bool bIsAiming;
 public:
 	virtual void BeginPlay() override;
 

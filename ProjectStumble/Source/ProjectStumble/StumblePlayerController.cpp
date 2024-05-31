@@ -46,6 +46,12 @@ void AStumblePlayerController::SetupInputComponent()
 		InputComponent->BindAction("Grab", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestGrabStart);
 		InputComponent->BindAction("Grab", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestGrabStop);
 
+		InputComponent->BindAction("Drop", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestDropWeaponStart);
+		InputComponent->BindAction("Drop", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestDropWeaponStop);
+
+		InputComponent->BindAction("Aim", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestAimStart);
+		InputComponent->BindAction("Aim", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestAimStop);
+
 		InputComponent->BindAction("InteractionStart", IE_Pressed, this, &AStumblePlayerController::StartInteraction);
 		InputComponent->BindAction("InteractionStart", IE_Pressed, this, &AStumblePlayerController::StopInteraction);
 
@@ -61,16 +67,14 @@ void AStumblePlayerController::SetupInputComponent()
 		//InputComponent->BindAction(TEXT("PullObject"), EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestPullObjectStart);
 		//InputComponent->BindAction(TEXT("PullObject"), EInputEvent::IE_Released, this, &AStumblePlayerController::RequestPullObjectStop);
 		//InputComponent->BindAxis(TEXT("ThrowObject"), this, &AStumblePlayerController::RequestThrowObject);
+
+		bIsAiming = false;
 	}
 }
 
 
 void AStumblePlayerController::RequestJump()
 {
-	//if (!CanProcessRequest())
-	//{
-	//	return;
-	//}
 
 	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
 	{
@@ -160,6 +164,22 @@ void AStumblePlayerController::RequestGrabStop()
 	}
 }
 
+void AStumblePlayerController::RequestDropWeaponStart()
+{
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->RequestDropWeaponStart();
+	}
+}
+
+void AStumblePlayerController::RequestDropWeaponStop()
+{
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->RequestDropWeaponStop();
+	}
+}
+
 void AStumblePlayerController::RequestMoveForward(float AxisValue)
 {
 	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
@@ -178,12 +198,13 @@ void AStumblePlayerController::RequestMoveRight(float AxisValue)
 
 void AStumblePlayerController::RequestLookUp(float AxisValue)
 {
-	AddPitchInput(AxisValue * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+		AddPitchInput(AxisValue * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
 void AStumblePlayerController::RequestLookRight(float AxisValue)
 {
-	AddYawInput(AxisValue * BaseLookRightRate * GetWorld()->GetDeltaSeconds());
+		AddYawInput(AxisValue * BaseLookRightRate * GetWorld()->GetDeltaSeconds());
+
 }
 
 void AStumblePlayerController::Climb()
@@ -199,5 +220,23 @@ void AStumblePlayerController::CancelClimb()
 	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
 	{
 		StumbleCharacterbase->CancelClimb();
+	}
+}
+
+void AStumblePlayerController::RequestAimStart()
+{
+	bIsAiming = true;
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->AdjustCameraForAiming(true);
+	}
+}
+
+void AStumblePlayerController::RequestAimStop()
+{
+	bIsAiming = false;
+	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
+	{
+		StumbleCharacterbase->AdjustCameraForAiming(false);
 	}
 }
