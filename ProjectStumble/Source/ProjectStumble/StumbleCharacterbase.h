@@ -164,8 +164,6 @@ public:
 
 	void AdjustCameraForAiming(bool bIsAiming);
 
-	void StartInteraction();
-	void StopInteraction();
 
 	void StartCrouch();
 	void EndCrouch();
@@ -206,7 +204,6 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsDroppingWeapon() const { return bIsDroppingWeapon; }
 
-
 	UFUNCTION(BlueprintImplementableEvent)
 	void DoorOpenInteractionStarted(AActor* InteractableActor);
 
@@ -221,6 +218,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Movement")
 	bool bIsSprinting = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Weapon")
+	bool bIsSwingingAxe = false;
 
 	FOnInteractionStart OnInteractionStart;
 	FOnInteractionCancel OnInteractionCancel;

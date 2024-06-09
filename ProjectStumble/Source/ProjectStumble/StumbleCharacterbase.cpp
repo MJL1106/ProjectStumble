@@ -519,24 +519,6 @@ void AStumbleCharacterbase::OnNotifyEndReceived(FName NotifyName, const FBranchi
 
 }
 
-void AStumbleCharacterbase::StartInteraction()
-{
-	bIsOpeningDoor = true;
-	if (PlayOpeningDoorMontage()) {
-		OnInteractionStart.Broadcast();
-	}
-	else
-	{
-		bIsOpeningDoor = false;
-	}
-}
-
-void AStumbleCharacterbase::StopInteraction()
-{
-	OnInteractionCancel.Broadcast();
-}
-
-
 bool AStumbleCharacterbase::PlayOpeningDoorMontage()
 {
 	const float PlayRate = 1.0f;
