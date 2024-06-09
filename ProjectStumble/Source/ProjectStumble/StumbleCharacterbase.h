@@ -79,10 +79,10 @@ protected:
 	float StandingCameraHeight = 30.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float AimingCameraHeight = 45.0f;;;
+	float AimingCameraHeight = 45.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	float CrouchingCameraHeight = 15.0f;
+	float CrouchingCameraHeight = 42.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Fall Impact")
 	float MinImpactSpeed = 100.0f;

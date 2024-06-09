@@ -45,7 +45,7 @@ AStumbleCharacterbase::AStumbleCharacterbase(const FObjectInitializer& ObjectIni
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraSpringArm"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 30.0f), FRotator(0.0f, 0.0f, 0.0f));
-	CameraBoom->TargetArmLength = 400.0f;
+	CameraBoom->TargetArmLength = 230.0f;
 	
 	CameraBoom->bEnableCameraLag = false;
 	CameraBoom->bEnableCameraRotationLag = false;
@@ -169,13 +169,13 @@ void AStumbleCharacterbase::SmoothCameraTransition(float DeltaTime)
 	}
 	else if (bIsCrouching)
 	{
-		TargetArmLength = 300.0f;
+		TargetArmLength = 200.0f;
 		TargetHeight = CrouchingCameraHeight;
 		TargetOffsetY = 0.0f; // Reset Y offset when not aiming
 	}
 	else
 	{
-		TargetArmLength = 400.0f;
+		TargetArmLength = 230.0f;
 		TargetHeight = StandingCameraHeight;
 		TargetOffsetY = 0.0f; // Reset Y offset when not aiming
 	}
