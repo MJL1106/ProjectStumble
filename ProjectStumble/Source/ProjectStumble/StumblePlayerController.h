@@ -32,9 +32,6 @@ protected:
 	void RequestGrabStart();
 	void RequestGrabStop();
 
-	void StartInteraction();
-	void StopInteraction();
-
 	void RequestCrouchStart();
 	void RequestCrouchEnd();
 

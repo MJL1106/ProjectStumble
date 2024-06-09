@@ -52,9 +52,6 @@ void AStumblePlayerController::SetupInputComponent()
 		InputComponent->BindAction("Aim", EInputEvent::IE_Pressed, this, &AStumblePlayerController::RequestAimStart);
 		InputComponent->BindAction("Aim", EInputEvent::IE_Released, this, &AStumblePlayerController::RequestAimStop);
 
-		InputComponent->BindAction("InteractionStart", IE_Pressed, this, &AStumblePlayerController::StartInteraction);
-		InputComponent->BindAction("InteractionStart", IE_Pressed, this, &AStumblePlayerController::StopInteraction);
-
 		InputComponent->BindAction("Climb", IE_Pressed, this, &AStumblePlayerController::Climb);
 		InputComponent->BindAction("Cancel Climb", IE_Pressed, this, &AStumblePlayerController::CancelClimb);
 
@@ -129,22 +126,6 @@ void AStumblePlayerController::RequestStopSprint()
 	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
 	{
 		StumbleCharacterbase->RequestStopSprint();
-	}
-}
-
-void AStumblePlayerController::StartInteraction()
-{
-	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
-	{
-		StumbleCharacterbase->StartInteraction();
-	}
-}
-
-void AStumblePlayerController::StopInteraction()
-{
-	if (AStumbleCharacterbase* StumbleCharacterbase = Cast<AStumbleCharacterbase>(GetCharacter()))
-	{
-		StumbleCharacterbase->StopInteraction();
 	}
 }
 
