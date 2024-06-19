@@ -148,7 +148,5 @@ public:
 	UFUNCTION(BlueprintPure)
 	FVector GetClimbDashDirection() const;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Climbing")
-	bool bIsAtClimbableSurface = false;
 };
 

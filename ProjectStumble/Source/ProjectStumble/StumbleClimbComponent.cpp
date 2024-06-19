@@ -137,7 +137,7 @@ void UStumbleClimbComponent::OnMovementModeChanged(EMovementMode PreviousMovemen
 
 void UStumbleClimbComponent::TryClimbing()
 {
-	if (bIsAtClimbableSurface && CanStartClimbing())
+	if (CanStartClimbing())
 	{
 		bWantsToClimb = true;
 	}
