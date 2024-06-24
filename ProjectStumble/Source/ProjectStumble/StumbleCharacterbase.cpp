@@ -275,7 +275,6 @@ void AStumbleCharacterbase::Landed(const FHitResult& Hit)
 					GetCharacterMovement()->DisableMovement();
 					AnimInstance->Montage_Play(HeavyLandMontage);
 					GetWorldTimerManager().SetTimer(UnfreezeTimerHandle, this, &AStumbleCharacterbase::EnableMovement, 1.25f, false);
-
 				}
 
 

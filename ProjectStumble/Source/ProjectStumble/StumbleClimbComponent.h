@@ -129,6 +129,7 @@ public:
 
 	void TryClimbing();
 
+	UFUNCTION(BlueprintCallable)
 	void CancelClimbing();
 
 	UFUNCTION(BlueprintPure)
@@ -146,6 +147,6 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FVector GetClimbDashDirection() const;
-	
+
 };
 
